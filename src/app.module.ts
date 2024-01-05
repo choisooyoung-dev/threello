@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CardModule } from './card/card.module';
 import { BoardModule } from './board/board.module';
-import { ColumnModule } from './column/column.module';
 import { CommentModule } from './comment/comment.module';
 
 @Module({
@@ -23,7 +22,6 @@ import { CommentModule } from './comment/comment.module';
     UserModule,
     CardModule,
     BoardModule,
-    ColumnModule,
     CommentModule,
   ], // 서버 전체에서 ConfigModule 쓸거야
   controllers: [AppController],

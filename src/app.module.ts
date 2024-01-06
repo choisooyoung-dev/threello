@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { CardModule } from './card/card.module';
 import { BoardModule } from './board/board.module';
 import { CommentModule } from './comment/comment.module';
+import { ListModule } from './list/list.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CommentModule } from './comment/comment.module';
     CardModule,
     BoardModule,
     CommentModule,
+    ListModule,
   ], // 서버 전체에서 ConfigModule 쓸거야
   controllers: [AppController],
   providers: [AppService],

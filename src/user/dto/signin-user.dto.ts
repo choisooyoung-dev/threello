@@ -1,0 +1,7 @@
+import { OmitType } from '@nestjs/mapped-types';
+import { CreateUserDto } from './create-user.dto';
+
+export class SigninUserDto extends OmitType(CreateUserDto, [
+  'passwordConfirm',
+  'nick',
+]) {}

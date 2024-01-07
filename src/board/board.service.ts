@@ -31,4 +31,27 @@ export class BoardService {
     }
     return board;
   }
+
+  // 보드 수정
+  async updateBoard(
+    id: number,
+    updateBoardDto: CreateBoardDto,
+  ): Promise<Board> {
+    const board = await this.boardRepository.findOneBy({ id });
+    if (!board) {
+      throw new NotFoundException(`해당 보드를 찾을 수 없습니다.`);
+    }
+
+    Object.assign(board, updateBoardDto);
+    await this.boardRepository.save(board);
+    return board;
+  }
+
+  // 보드 삭제
+  async deleteBoard(id: number): Promise<void> {
+    const result = await this.boardRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(` 해당 보드를 찾을 수 없습니다.`);
+    }
+  }
 }

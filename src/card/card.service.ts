@@ -51,17 +51,30 @@ export class CardService {
   async update(id: number, updateCardDto: UpdateCardDto) {
     const existingCard = await this.cardRepository.findOneBy({ id });
     if (!existingCard) throw new NotFoundException('해당하는 카드가 없습니다.');
-    const updateCard = await this.cardRepository.update({ id }, updateCardDto);
-    return updateCard;
+    await this.cardRepository.update({ id }, updateCardDto);
+    return this.getCard(id);
   }
 
   // 카드 삭제
   async remove(id: number) {
     const existingCard = await this.cardRepository.findOneBy({ id });
     if (!existingCard) throw new NotFoundException('해당하는 카드가 없습니다.');
-    const deleteCard = await this.cardRepository.delete({ id });
-    return deleteCard;
+    await this.cardRepository.delete({ id });
+    return this.getAllCards();
   }
+
+  // async moveCard() {
+  //   // 카드 순서 수정
+
+  //       console.log(updateCardDto.cardOrder);
+  //       const targetCard = await this.cardRepository.findOneBy({
+  //         cardOrder: updateCardDto.cardOrder,
+  //       });
+  //       console.log('targetCard: ', targetCard);
+
+  //       const selectedCard = await this.cardRepository.findOneBy({ id });
+  //       console.log('selectedCard: ', selectedCard);
+  // }
 
   // 작업자 할당
   async createWorker(cardId: number, createWorkerDto: CreateWorkerDto) {

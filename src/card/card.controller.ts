@@ -47,8 +47,8 @@ export class CardController {
   // 모든 카드 가져오기
   @Get()
   async getAllCards() {
-    const allCards = await this.cardService.getAllCards();
-    return { status: HttpStatus.OK, message: '모든 카드 조회 성공', allCards };
+    const cards = await this.cardService.getAllCards();
+    return { status: HttpStatus.OK, message: '모든 카드 조회 성공', cards };
   }
 
   // 특정 카드 가져오기
@@ -60,13 +60,13 @@ export class CardController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
-    const updateCard = await this.cardService.update(+id, updateCardDto);
-    return { status: HttpStatus.OK, message: '카드 수정 성공', updateCard };
+    const updatedCard = await this.cardService.update(+id, updateCardDto);
+    return { status: HttpStatus.OK, message: '카드 수정 성공', updatedCard };
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const deleteCard = await this.cardService.remove(+id);
-    return { status: HttpStatus.OK, message: '카드 삭제 성공', deleteCard };
+    const cards = await this.cardService.remove(+id);
+    return { status: HttpStatus.OK, message: '카드 삭제 성공', cards };
   }
 }

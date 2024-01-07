@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -47,19 +47,25 @@ export class CardService {
     return getCard;
   }
 
-  update(id: number, updateCardDto: UpdateCardDto) {
-    return `This action updates a #${id} card`;
+  // 카드 수정
+  async update(id: number, updateCardDto: UpdateCardDto) {
+    const existingCard = await this.cardRepository.findOneBy({ id });
+    if (!existingCard) throw new NotFoundException('해당하는 카드가 없습니다.');
+    const updateCard = await this.cardRepository.update({ id }, updateCardDto);
+    return updateCard;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} card`;
+  // 카드 삭제
+  async remove(id: number) {
+    const existingCard = await this.cardRepository.findOneBy({ id });
+    if (!existingCard) throw new NotFoundException('해당하는 카드가 없습니다.');
+    const deleteCard = await this.cardRepository.delete({ id });
+    return deleteCard;
   }
 
   // 작업자 할당
   async createWorker(cardId: number, createWorkerDto: CreateWorkerDto) {
     const { userIds } = createWorkerDto;
-    console.log(' userIds Array ===> ', userIds);
-    console.log('card ===> ', cardId);
 
     const createdWorkers = [];
 
@@ -69,6 +75,7 @@ export class CardService {
         where: { userId: user.id, card: { id: cardId } },
       });
 
+      // 중복된 사람 제외 등록
       if (!existingWorker) {
         const newWorker = await this.cardWorkerRepository.save({
           userId: user.id,
@@ -78,5 +85,21 @@ export class CardService {
       }
     }
     return createdWorkers;
+  }
+
+  // 작업자 삭제
+  async removeWorker(cardId: number, userId: number) {
+    const existingWorker = await this.cardWorkerRepository.findOne({
+      where: { userId, card: { id: cardId } },
+    });
+
+    if (!existingWorker)
+      throw new NotFoundException('해당되는 사용자가 없습니다.');
+
+    const deleteWorker = await this.cardWorkerRepository.delete({
+      userId,
+    });
+
+    return deleteWorker;
   }
 }

@@ -34,6 +34,16 @@ export class CardController {
     return { status: HttpStatus.CREATED, message: '작업자 할당 성공', data };
   }
 
+  // 카드 내 작업자 삭제
+  @Delete(':id/worker/remove')
+  async removeWorker(
+    @Param('id') cardId: string,
+    @Body('userId') userId: number,
+  ) {
+    const data = await this.cardService.removeWorker(+cardId, userId);
+    return { status: HttpStatus.OK, message: '작업자 삭제 성공', data };
+  }
+
   // 모든 카드 가져오기
   @Get()
   async getAllCards() {
@@ -49,12 +59,14 @@ export class CardController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
-    return this.cardService.update(+id, updateCardDto);
+  async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
+    const updateCard = await this.cardService.update(+id, updateCardDto);
+    return { status: HttpStatus.OK, message: '카드 수정 성공', updateCard };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cardService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const deleteCard = await this.cardService.remove(+id);
+    return { status: HttpStatus.OK, message: '카드 삭제 성공', deleteCard };
   }
 }

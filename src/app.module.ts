@@ -2,48 +2,28 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config'; // env 파일 쓸 때 쓰는 라이브러리(express dotenv 같은 역할)
+import { ConfigModule } from '@nestjs/config'; // env 파일 쓸 때 쓰는 라이브러리(express dotenv 같은 역할)
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { configModuleValidationSchema } from './configs/env-validation.config';
+import { typeOrmModuleOptions } from './configs/database.config';
+import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import Joi from 'joi';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
-
-const typeOrmModuleOptions = {
-  useFactory: async (
-    configService: ConfigService,
-  ): Promise<TypeOrmModuleOptions> => ({
-    namingStrategy: new SnakeNamingStrategy(),
-    type: 'mysql',
-    username: configService.get('DB_USERNAME'),
-    password: configService.get('DB_PASSWORD'),
-    host: configService.get('DB_HOST'),
-    port: configService.get('DB_PORT'),
-    database: configService.get('DB_NAME'),
-    entities: [User],
-    synchronize: configService.get('DB_SYNC'),
-    logging: true,
-  }),
-  inject: [ConfigService],
-};
+import { CardModule } from './card/card.module';
+import { BoardModule } from './board/board.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({
-        // 환경변수 지정
-        SERVER_PORT: Joi.number().required(),
-        JWT_SECRET_KEY: Joi.string().required(),
-        DB_USERNAME: Joi.string().required(),
-        DB_PASSWORD: Joi.string().required(),
-        DB_HOST: Joi.string().required(),
-        DB_PORT: Joi.number().required(),
-        DB_NAME: Joi.string().required(),
-        DB_SYNC: Joi.boolean().required(),
-      }),
+      validationSchema: configModuleValidationSchema,
     }),
-    UserModule,
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    AuthModule,
+    UserModule,
+    CardModule,
+    BoardModule,
+    CommentModule,
   ], // 서버 전체에서 ConfigModule 쓸거야
   controllers: [AppController],
   providers: [AppService],

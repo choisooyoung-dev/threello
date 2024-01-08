@@ -1,4 +1,4 @@
-export enum cardIndexColor {
+export enum Color {
   '#61BE4E' = 'green',
   '#F2D700' = 'yellow',
   '#FFA013' = 'orange',

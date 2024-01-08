@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:pull": "typeorm-model-generator -h visitor.c2tytnubafhm.ap-northeast-2.rds.amazonaws.com -d threello -p 3306 -u admin -x rlaalswn1029 -e mysql -o ./output"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -32,7 +33,8 @@
     "mysql2": "^3.6.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.19"
+    "typeorm": "^0.3.19",
+    "typeorm-model-generator": "^0.4.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

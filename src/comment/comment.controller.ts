@@ -18,19 +18,19 @@ export class CommentController {
 
   // 댓글 생성
   @Post()
-  async create(@Body() createCommentDto: CreateCommentDto) {
-    const data = await this.commentService.create(createCommentDto);
+  async createComment(@Body() createCommentDto: CreateCommentDto) {
+    const comment = await this.commentService.createComment(createCommentDto);
     return {
       statusCode: HttpStatus.CREATED,
       message: '댓글 작성 완료.',
-      data,
+      comment,
     };
   }
 
   // 댓글 조회
   @Get()
-  async findAll() {
-    const comments = await this.commentService.findAll();
+  async getComments() {
+    const comments = await this.commentService.getComments();
     return {
       statusCode: HttpStatus.OK,
       message: '전체 댓글 조회 성공.',
@@ -40,8 +40,8 @@ export class CommentController {
 
   // 특정 댓글 가져오기
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const comment = await this.commentService.findOne(+id);
+  async getComment(@Param('id') id: string) {
+    const comment = await this.commentService.getComment(+id);
     return {
       statusCode: HttpStatus.OK,
       message: '댓글 조회 완료.',
@@ -51,11 +51,11 @@ export class CommentController {
 
   // 댓글 수정
   @Patch(':id')
-  async update(
+  async updateComment(
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    const updateComment = await this.commentService.update(
+    const updateComment = await this.commentService.updateComment(
       +id,
       updateCommentDto,
     );
@@ -68,8 +68,8 @@ export class CommentController {
 
   // 댓글 삭제
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    const deleteComment = this.commentService.remove(+id);
+  removeComment(@Param('id') id: string) {
+    const deleteComment = this.commentService.removeComment(+id);
     return {
       statusCode: HttpStatus.OK,
       message: '댓글 삭제 완료.',

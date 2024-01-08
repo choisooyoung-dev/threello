@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,31 +16,44 @@ export class CommentService {
   ) {}
 
   // 댓글 생성
-  async create(createCommentDto: CreateCommentDto) {
+  async createComment(createCommentDto: CreateCommentDto) {
     const { content } = createCommentDto;
+    if (!content) {
+      throw new BadRequestException('댓글을 입력해 주세요.');
+    }
     const newComment = await this.commentRepository.save({ content });
     return newComment;
   }
 
   // 댓글 조회
-  async findAll() {
-    const findAllComments = await this.commentRepository.find();
-    return findAllComments;
+  async getComments() {
+    const getAllComments = await this.commentRepository.find();
+    return getAllComments;
   }
 
   // 특정 댓글 조회
-  async findOne(id: number) {
-    const findOndComment = await this.commentRepository.findOneBy({ id });
-    return findOndComment;
+  async getComment(id: number) {
+    const getComment = await this.commentRepository.findOneBy({ id });
+    return getComment;
   }
 
   // 댓글 수정
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  async updateComment(id: number, updateCommentDto: UpdateCommentDto) {
+    const existComment = await this.commentRepository.findOneBy({ id });
+    if (!existComment) {
+      throw new NotFoundException('댓글이 존재하지 않습니다.');
+    }
+    await this.commentRepository.update({ id }, updateCommentDto);
+    return this.getComment(id);
   }
 
   // 댓글 삭제
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  async removeComment(id: number) {
+    const existComment = await this.commentRepository.findOneBy({ id });
+    if (!existComment) {
+      throw new NotFoundException('댓글이 존재하지 않습니다.');
+    }
+    await this.commentRepository.delete({ id });
+    return this.getComments();
   }
 }

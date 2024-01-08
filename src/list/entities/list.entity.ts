@@ -1,36 +1,43 @@
-import { Entity, Column, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Board } from '../../board/entities/board.entity';
 import { Card } from '../../card/entities/card.entity';
 
 @Entity('lists')
 export class List {
-  @Column('int', { primary: true, name: 'id', comment: 'PK, AUTO_INCREMENT' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  // @ManyToOne((type) => Board, (board) => board.lists, {
-  //   onDelete: 'CASCADE',
-  //   onUpdate: 'CASCADE',
-  // })
-  // @JoinColumn([{ name: 'kanban_boards_id', referencedColumnName: 'id' }])
-  // board: Board;
+  @Column()
+  kanban_boards_id: number;
 
-  @Column('int', { name: 'kanban_boards_id', comment: 'FK' })
-  kanbanBoardsId: number;
+  @Column()
+  lists_order: number;
 
-  @Column('int', { name: 'lists_order', comment: '기존Lits개수세서 +1' })
-  listsOrder: number;
-
-  @Column('varchar', { name: 'title', length: 255 })
+  @Column()
   title: string;
 
   @CreateDateColumn()
-  @Column('date', { name: 'created_at' })
-  createdAt: string;
+  created_at: string;
 
   @UpdateDateColumn()
-  @Column('date', { name: 'updated_at' })
-  updatedAt: string;
+  updated_at: string;
 
-  // @OneToMany(() => Card, (card) => card.liusts)
-  // card: Card[];
+  @OneToMany(() => Card, (card) => card.list)
+  card: Card[];
+
+  @ManyToOne(() => Board, (board) => board.list, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn([{ name: 'kanban_boards_id', referencedColumnName: 'id' }])
+  board: Board;
 }

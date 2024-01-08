@@ -19,14 +19,6 @@ export class ListController {
 
   @Post()
   async create(@Body() createListDto: CreateListDto) {
-    // user가 칸반보드 리스트 권한이 있는지 확인
-    // user.id가 board_users 테이블 내 kanban_boards_id&&user_id 값이 일치하게 존재해야함
-    // const checkUserRight = this.listService.findOne(createListDto.kanban_boards_id)
-    // if(!checkUserRight.length) {
-    //   throw new BadRequestException('작성 권한이 없습니다.');
-    // }
-
-    // 현재 칸반보드에 리스트 개수를 모두 세서 +1하고 order 반환
     const listCount = await this.listService.count(
       createListDto.kanban_boards_id,
     );
@@ -38,12 +30,6 @@ export class ListController {
   // 전체보기는 보드보기에 딸려서 이미 실행될거같음 일단 기재
   @Get('all/:kanban_boards_id')
   async findAll(@Param('kanban_boards_id') kanban_boards_id: number) {
-    // user가 칸반보드 리스트 권한이 있는지 확인
-    // user.id가 board_users 테이블 내 kanban_boards_id&&user_id 값이 일치하게 존재해야함
-    // const checkUserRight = this.listService.findOne(createListDto.kanban_boards_id)
-    // if(!checkUserRight.length) {
-    //   throw new BadRequestException('열람 권한이 없습니다.');
-    // }
     return await this.listService.findAll(kanban_boards_id);
   }
 

@@ -5,7 +5,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { List } from '../../list/entities/list.entity';
 
 @Entity('boards')
 export class Board {
@@ -27,4 +29,7 @@ export class Board {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => List, (list) => list.board)
+  list: List[];
 }

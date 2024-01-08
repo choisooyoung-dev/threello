@@ -34,10 +34,6 @@ Content-Type: application/json
 # UPDATE CARD ORDER (현재 카드아이디 값/옮기고 싶은 위치의 카드 order 값)
 PATCH {{host}}/card/9/13
 
-###
-# UPDATE CARD LIST ORDER
-PATCH {{host}}/card/9/1/
-
 ### 
 # DELETE CARD
 DELETE {{host}}/card/delete/5

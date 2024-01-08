@@ -35,12 +35,12 @@ export class CardController {
   }
 
   // 카드 내 작업자 삭제
-  @Delete(':id/worker/remove')
+  @Delete(':id/worker/remove/:userId')
   async removeWorker(
     @Param('id') cardId: string,
-    @Body('userId') userId: number,
+    @Param('userId') userId: string,
   ) {
-    const data = await this.cardService.removeWorker(+cardId, userId);
+    const data = await this.cardService.removeWorker(+cardId, +userId);
     return { status: HttpStatus.OK, message: '작업자 삭제 성공', data };
   }
 

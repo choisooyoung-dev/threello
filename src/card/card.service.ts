@@ -17,7 +17,7 @@ export class CardService {
 
   // 카드 생성
   async create(createCardDto: CreateCardDto) {
-    const { columnId, color, title, content } = createCardDto;
+    const { listId, color, title, content } = createCardDto;
 
     const getAllCards = await this.cardRepository.find();
     //  console.log(allGetCard);
@@ -27,7 +27,7 @@ export class CardService {
     const newCard = await this.cardRepository.save({
       title,
       content,
-      columnId,
+      listId,
       cardOrder,
       color,
     });

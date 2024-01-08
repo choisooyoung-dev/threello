@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { DeadlineStatus } from './types/deadline.status.type';
@@ -200,13 +200,13 @@ export class CardService {
   }
 
   // 리스트간 카드 이동
-  async moveCardBetweenList(cardId: number, listId: number, to: number) {
-    const moveCard = await this.cardRepository.findOne({
-      where: { id: cardId },
-      select: ['listId'],
-    });
-    console.log(moveCard);
-  }
+  // async moveCardBetweenList(cardId: number, listId: number, to: number) {
+  //   const moveCard = await this.cardRepository.findOne({
+  //     where: { id: cardId },
+  //     select: ['listId'],
+  //   });
+  //   console.log(moveCard);
+  // }
 
   // 작업자 할당
   async createWorker(cardId: number, createWorkerDto: CreateWorkerDto) {

@@ -80,9 +80,13 @@ export class CardController {
     return { status: HttpStatus.OK, message: '카드 수정 성공', updatedCard };
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const cards = await this.cardService.remove(+id);
-    return { status: HttpStatus.OK, message: '카드 삭제 성공', cards };
+  // 카드 순서 변경
+  @Patch(':cardId/:to')
+  async moveCardBlock(
+    @Param('cardId') cardId: string,
+    @Param('to') to: string,
+  ) {
+    const movedCard = await this.cardService.moveCardBlock(+cardId, +to);
+    return { status: HttpStatus.OK, message: '카드 순서 변경 성공', movedCard };
   }
 }

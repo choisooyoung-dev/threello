@@ -13,13 +13,13 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 @Entity({ name: 'comments' })
 export class Comment {
-  @PrimaryColumn({ unsigned: true })
+  @PrimaryColumn()
   id: number;
 
-  @Column({ unsigned: true })
+  @Column()
   cardId: number;
 
-  @Column({ unsigned: true })
+  @Column()
   userId: number;
 
   @IsNotEmpty({ message: '내용을 입력해 주세요.' })

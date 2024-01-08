@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Delete,
+  BadRequestException,
+  ValidationPipe,
+  UsePipes,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { SigninUserDto } from './dto/signin-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from './entities/user.entity';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Post('/signup')
+  @UsePipes(ValidationPipe)
+  async signup(@Body() createUserDto: CreateUserDto) {
+    if (createUserDto.password != createUserDto.passwordConfirm) {
+      throw new BadRequestException(
+        'your password not match your passwordConfirm',
+      );
+    }
+    return await this.userService.signup(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Post('/signin')
+  @UsePipes(ValidationPipe)
+  async signin(@Body() signinUserDto: SigninUserDto) {
+    return await this.userService.signin(signinUserDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/myinfo')
+  async getMyInfo(@GetUser() user: User) {
+    return {
+      code: 200,
+      message: 'you successfully get your profile',
+      email: user.email,
+      nick: user.nick,
+    };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/myaccount')
+  async withdraw(@GetUser() user: User) {
+    return await this.userService.withdraw(user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(ValidationPipe)
+  @Patch('/myinfo')
+  async patchMyInfo(@GetUser() user: User, @Body('nick') nick: string) {
+    return await this.userService.patchMyInfo(user, nick);
   }
 }

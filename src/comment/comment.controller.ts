@@ -27,25 +27,53 @@ export class CommentController {
     };
   }
 
+  // 댓글 조회
   @Get()
-  findAll() {
-    return this.commentService.findAll();
+  async findAll() {
+    const comments = await this.commentService.findAll();
+    return {
+      statusCode: HttpStatus.OK,
+      message: '전체 댓글 조회 성공.',
+      comments,
+    };
   }
 
+  // 특정 댓글 가져오기
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const comment = await this.commentService.findOne(+id);
+    return {
+      statusCode: HttpStatus.OK,
+      message: '댓글 조회 완료.',
+      comment,
+    };
   }
 
   // 댓글 수정
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentService.update(+id, updateCommentDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    const updateComment = await this.commentService.update(
+      +id,
+      updateCommentDto,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: '댓글 수정 완료.',
+      updateComment,
+    };
   }
 
   // 댓글 삭제
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.commentService.remove(+id);
+    const deleteComment = this.commentService.remove(+id);
+    return {
+      statusCode: HttpStatus.OK,
+      message: '댓글 삭제 완료.',
+      deleteComment,
+    };
   }
 }

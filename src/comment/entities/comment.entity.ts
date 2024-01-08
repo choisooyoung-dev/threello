@@ -33,8 +33,8 @@ export class Comment {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
-  user: User;
+  // @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
+  // user: User;
 
   @ManyToOne(() => Card, (card) => card.comments, { onDelete: 'CASCADE' })
   card: Card;

@@ -6,18 +6,20 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { CardWorker } from './card.worker.entity';
+import { List } from '../../list/entities/list.entity';
 import { Color } from '../../common/types/color.type';
 
 @Entity('cards')
 export class Card {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @IsNumber()
   @Column()
-  columnId: number;
+  listId: number;
 
   @IsOptional()
   @IsNumber()
@@ -47,4 +49,10 @@ export class Card {
 
   @OneToMany(() => CardWorker, (cardWorker) => cardWorker.card)
   cardWorkers: CardWorker[];
+
+  @ManyToOne(() => List, (list) => list.card, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  list: List;
 }

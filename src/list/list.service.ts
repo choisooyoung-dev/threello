@@ -20,7 +20,7 @@ export class ListService {
 
   async create(createListDto: CreateListDto, lists_order) {
     const { kanban_boards_id, title } = createListDto;
-    await this.listRepository.save({ kanban_boards_id, title, lists_order });
+    await this.listRepository.save({ kanban_boards_id, lists_order, title });
     return { kanban_boards_id, title, lists_order };
   }
 
@@ -28,7 +28,7 @@ export class ListService {
     const lists = await this.listRepository
       .createQueryBuilder('list')
       .where('list.kanban_boards_id = :kanban_boards_id', { kanban_boards_id })
-      // .leftJoinAndSelect('list.card', 'card')
+      .leftJoinAndSelect('list.card', 'card')
       .getRawMany();
 
     return lists;
@@ -54,12 +54,12 @@ export class ListService {
       // 리스트블록의 현재 order값과 옮기려는 값을 비교해서 최대값, 최소값 설정
       let max = 0;
       let min = 0;
-      if (listBlock.list[0].listsOrder > to) {
-        max = listBlock.list[0].listsOrder;
+      if (listBlock.list[0].lists_order > to) {
+        max = listBlock.list[0].lists_order;
         min = to;
       } else {
         max = to;
-        min = listBlock.list[0].listsOrder;
+        min = listBlock.list[0].lists_order;
       }
       // 최대값과 최소값 사이에 있는 order를 가진 모든 리스트 불러오기
       const currentLists = await this.listRepository
@@ -71,13 +71,13 @@ export class ListService {
         .getMany();
       // 뒤에서 앞으로 옮기면 앞에있던 모든리스트를 +1, 반대는 -1해야함
       // direction으로 변수설정하고 적용
-      const direction = to > listBlock.list[0].listsOrder ? -1 : 1;
+      const direction = to > listBlock.list[0].lists_order ? -1 : 1;
 
       for (const list of currentLists) {
-        list.listsOrder += direction;
+        list.lists_order += direction;
       }
 
-      listBlock.list[0].listsOrder = to;
+      listBlock.list[0].lists_order = to;
 
       // 기존거 순서 다 바꾸고 현재것도 바꾸기(트랜잭션)
       await queryRunner.manager.save(List, currentLists);
@@ -99,11 +99,11 @@ export class ListService {
   async remove(id: number) {
     // 일단 리스트를 열람하고 얘가 전체중 몇번째애인지 확인
     const list = (await this.verifyListById(id)).list[0];
-    const kanbanBoardsId = list.kanbanBoardsId;
-    const count = await this.count(kanbanBoardsId);
+    const kanban_boards_id = list.kanban_boards_id;
+    const count = await this.count(kanban_boards_id);
 
     // 얘가 맨 마지막 애라면 나머지 order는 변경할 필요 없이 지우고 끗
-    if (Number(count.total_list_count) === list.listsOrder) {
+    if (Number(count.total_list_count) === list.lists_order) {
       await this.listRepository.delete({ id });
       return list; // 리턴해서 아래 코드 실행하지 않게 함
     }
@@ -114,10 +114,10 @@ export class ListService {
   }
 
   // 지원메서드 count(전체 list 개수를 세 줌)
-  async count(kanbanBoardsId: number) {
+  async count(kanban_boards_id: number) {
     const listCount = await this.listRepository
       .createQueryBuilder('list')
-      .where({ kanbanBoardsId: kanbanBoardsId })
+      .where({ kanban_boards_id: kanban_boards_id })
       .select('COUNT(list.lists_order)', 'total_list_count')
       .getRawOne();
 
@@ -128,7 +128,7 @@ export class ListService {
   private async verifyListById(id: number) {
     const list = await this.listRepository.find({
       where: { id },
-      // relations: { card: true },
+      relations: { card: true },
     });
     if (_.isNil(list)) {
       throw new NotFoundException('존재하지 않는 공연입니다.');

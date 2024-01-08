@@ -14,10 +14,11 @@ POST {{host}}/card/create
 Content-Type: application/json
 
 {
-    "columnId": 1,
-    "title": "first card",
-    "content": "first card's content",
-    "color": "green"
+    "listId": 1,
+    "title": "dummy card",
+    "content": "dummy card's content",
+    "dueDateValue": "2024-01-10",
+    "dueTimeValue": "20:00"
 }
 
 ### 
@@ -30,21 +31,26 @@ Content-Type: application/json
 }
 
 ### 
-# DELETE CARD
-DELETE {{host}}/card/1
+# UPDATE CARD ORDER (현재 카드아이디 값/옮기고 싶은 위치의 카드 order 값)
+PATCH {{host}}/card/9/13
 
 ### 
+# DELETE CARD
+DELETE {{host}}/card/delete/5
+  
+### 
 #CREATE WORKER
-POST {{host}}/card/1/worker/create
+POST {{host}}/card/2/worker/create
 Content-Type: application/json
 
 {
   "userIds": [
-    { "id": 1 }
+    { "id": 1 },
+    { "id": 2 }
   ]
 }
 
 ###
 # DELETE WORKER
-DELETE {{host}}/card/1/worker/remove/1
+DELETE {{host}}/card/2/worker/remove/1
 

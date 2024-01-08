@@ -89,4 +89,23 @@ export class CardController {
     const movedCard = await this.cardService.moveCardBlock(+cardId, +to);
     return { status: HttpStatus.OK, message: '카드 순서 변경 성공', movedCard };
   }
+
+  // 카드 리스트간 이동
+  @Patch(':cardId/:listId/:toWithListOrder/:toWithCardOrder')
+  async moveCardBetweenList(
+    @Param('cardId') cardId: string,
+    @Param('listId') listId: string,
+    @Param('to') to: string,
+  ) {
+    const moveCard = await this.cardService.moveCardBetweenList(
+      +cardId,
+      +listId,
+      +to,
+    );
+    return {
+      status: HttpStatus.OK,
+      message: '카드 리스트 변경 성공',
+      moveCard,
+    };
+  }
 }

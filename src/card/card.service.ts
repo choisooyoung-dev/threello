@@ -199,6 +199,15 @@ export class CardService {
     }
   }
 
+  // 리스트간 카드 이동
+  async moveCardBetweenList(cardId: number, listId: number, to: number) {
+    const moveCard = await this.cardRepository.findOne({
+      where: { id: cardId },
+      select: ['listId'],
+    });
+    console.log(moveCard);
+  }
+
   // 작업자 할당
   async createWorker(cardId: number, createWorkerDto: CreateWorkerDto) {
     const { userIds } = createWorkerDto;

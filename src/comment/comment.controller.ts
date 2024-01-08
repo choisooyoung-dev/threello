@@ -12,13 +12,16 @@ import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
-@Controller('comment')
+@Controller('/:cardId/comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   // 댓글 생성
   @Post()
-  async createComment(@Body() createCommentDto: CreateCommentDto) {
+  async createComment(
+    @Param('cardId') cardId: number,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
     const comment = await this.commentService.createComment(createCommentDto);
     return {
       statusCode: HttpStatus.CREATED,
@@ -29,7 +32,7 @@ export class CommentController {
 
   // 댓글 조회
   @Get()
-  async getComments() {
+  async getComments(@Param('cardId') cardId: number) {
     const comments = await this.commentService.getComments();
     return {
       statusCode: HttpStatus.OK,

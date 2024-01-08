@@ -11,6 +11,7 @@ import {
 import { CardWorker } from './card.worker.entity';
 import { List } from '../../list/entities/list.entity';
 import { Color } from '../../common/types/color.type';
+import { Comment } from '../../comment/entities/comment.entity';
 
 @Entity('cards')
 export class Card {
@@ -55,4 +56,7 @@ export class Card {
     onUpdate: 'CASCADE',
   })
   list: List;
+
+  @OneToMany(() => Comment, (Comment) => Comment.card)
+  comments: Comment[];
 }

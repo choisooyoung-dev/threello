@@ -1,4 +1,4 @@
-import { Entity, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Board } from '../../board/entities/board.entity';
 import { Card } from '../../card/entities/card.entity';
 
@@ -23,9 +23,11 @@ export class List {
   @Column('varchar', { name: 'title', length: 255 })
   title: string;
 
+  @CreateDateColumn()
   @Column('date', { name: 'created_at' })
   createdAt: string;
 
+  @UpdateDateColumn()
   @Column('date', { name: 'updated_at' })
   updatedAt: string;
 

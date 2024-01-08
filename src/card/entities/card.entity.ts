@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CardWorker } from './card.worker.entity';
-import { cardIndexColor } from '../types/card.color.type';
+import { Color } from '../../common/types/color.type';
 
 @Entity('cards')
 export class Card {
@@ -36,8 +36,8 @@ export class Card {
 
   @IsOptional()
   @IsString()
-  @Column({ type: 'enum', enum: cardIndexColor, nullable: true })
-  color?: cardIndexColor;
+  @Column({ type: 'enum', enum: Color, nullable: true })
+  color?: Color;
 
   @CreateDateColumn()
   createdAt: Date;

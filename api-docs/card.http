@@ -1,0 +1,50 @@
+@host = http://localhost:3000/api
+
+###
+# GET ALL CARDS
+GET {{host}}/card
+
+###
+# GET CARD
+GET {{host}}/card/1
+
+###
+# CREATE CARD
+POST {{host}}/card/create
+Content-Type: application/json
+
+{
+    "columnId": 1,
+    "title": "first card",
+    "content": "first card's content",
+    "color": "green"
+}
+
+### 
+# UPDATE CARD
+PATCH  {{host}}/card/1
+Content-Type: application/json
+
+{
+	"title": "first card!!!"
+}
+
+### 
+# DELETE CARD
+DELETE {{host}}/card/1
+
+### 
+#CREATE WORKER
+POST {{host}}/card/1/worker/create
+Content-Type: application/json
+
+{
+  "userIds": [
+    { "id": 1 }
+  ]
+}
+
+###
+# DELETE WORKER
+DELETE {{host}}/card/1/worker/remove/1
+

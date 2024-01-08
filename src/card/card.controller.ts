@@ -19,8 +19,16 @@ export class CardController {
 
   // 카드 생성
   @Post('/create')
-  async create(@Body() createCardDto: CreateCardDto) {
-    const data = await this.cardService.create(createCardDto);
+  async create(
+    @Body() createCardDto: CreateCardDto,
+    @Body('dueTimeValue') dueTimeValue: string,
+    @Body('dueDateValue') dueDateValue: string,
+  ) {
+    const data = await this.cardService.create(
+      createCardDto,
+      dueDateValue,
+      dueTimeValue,
+    );
     return { status: HttpStatus.CREATED, message: '카드 등록 성공', data };
   }
 

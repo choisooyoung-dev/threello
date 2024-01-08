@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Card } from './entities/card.entity';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
+import { DeadlineStatus } from './types/deadline.status.type';
 
 @Injectable()
 export class CardService {
@@ -16,13 +17,42 @@ export class CardService {
   ) {}
 
   // 카드 생성
-  async create(createCardDto: CreateCardDto) {
-    const { listId, color, title, content } = createCardDto;
+  async create(
+    createCardDto: CreateCardDto,
+    dueDateValue: string,
+    dueTimeValue: string,
+  ) {
+    const { listId, color, title, content, dueDate, deadlineStatus } =
+      createCardDto;
+
+    console.log('dueDateValue ===> ', dueDateValue);
+    console.log('dueTimeValue ====> ', dueTimeValue);
 
     const getAllCards = await this.cardRepository.find();
     //  console.log(allGetCard);
 
     const cardOrder = getAllCards.length + 1;
+
+    if (!dueTimeValue) dueTimeValue = '00:00';
+
+    const dueDateResult = new Date(`${dueDateValue} ${dueTimeValue}`);
+    console.log('dueDateResult: ', dueDateResult);
+
+    const nowDate = new Date();
+    console.log('nowDate ===> ', nowDate);
+
+    const timeDifference = dueDateResult.getTime() - nowDate.getTime();
+
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+    let deadlineStatusValue: DeadlineStatus;
+    if (hoursDifference <= 0) {
+      deadlineStatusValue = DeadlineStatus.overdue;
+    } else if (hoursDifference < 24) {
+      deadlineStatusValue = DeadlineStatus.soon;
+    } else {
+      deadlineStatusValue = null;
+    }
 
     const newCard = await this.cardRepository.save({
       title,
@@ -30,6 +60,8 @@ export class CardService {
       listId,
       cardOrder,
       color,
+      dueDate: dueDateResult,
+      deadlineStatus: deadlineStatusValue,
     });
 
     return newCard;

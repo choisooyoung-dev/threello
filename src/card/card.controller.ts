@@ -19,9 +19,24 @@ export class CardController {
 
   // 카드 생성
   @Post('/create')
-  async create(@Body() createCardDto: CreateCardDto) {
-    const data = await this.cardService.create(createCardDto);
+  async create(
+    @Body() createCardDto: CreateCardDto,
+    @Body('dueTimeValue') dueTimeValue: string,
+    @Body('dueDateValue') dueDateValue: string,
+  ) {
+    const data = await this.cardService.create(
+      createCardDto,
+      dueDateValue,
+      dueTimeValue,
+    );
     return { status: HttpStatus.CREATED, message: '카드 등록 성공', data };
+  }
+
+  // 카드 삭제
+  @Delete('/delete/:id')
+  async remove(@Param('id') id: string) {
+    const cards = await this.cardService.remove(+id);
+    return { status: HttpStatus.OK, message: '카드 삭제 성공', cards };
   }
 
   // 카드 내 작업자 할당
@@ -58,15 +73,20 @@ export class CardController {
     return { status: HttpStatus.OK, message: '카드 조회 성공', card };
   }
 
+  // 카드 수정
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
     const updatedCard = await this.cardService.update(+id, updateCardDto);
     return { status: HttpStatus.OK, message: '카드 수정 성공', updatedCard };
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const cards = await this.cardService.remove(+id);
-    return { status: HttpStatus.OK, message: '카드 삭제 성공', cards };
+  // 카드 순서 변경
+  @Patch(':cardId/:to')
+  async moveCardBlock(
+    @Param('cardId') cardId: string,
+    @Param('to') to: string,
+  ) {
+    const movedCard = await this.cardService.moveCardBlock(+cardId, +to);
+    return { status: HttpStatus.OK, message: '카드 순서 변경 성공', movedCard };
   }
 }

@@ -13,6 +13,7 @@ import { List } from '../../list/entities/list.entity';
 import { Color } from 'src/common/types/color.type';
 import { CardWorker } from './card.worker.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
+import { DeadlineStatus } from '../types/deadline.status.type';
 
 @Entity('cards')
 export class Card {
@@ -42,6 +43,14 @@ export class Card {
   @IsString()
   @Column({ type: 'enum', enum: Color, nullable: true })
   color?: Color;
+
+  @IsOptional()
+  @Column({ nullable: true })
+  dueDate?: Date;
+
+  @IsOptional()
+  @Column({ type: 'enum', enum: DeadlineStatus, nullable: true })
+  deadlineStatus?: DeadlineStatus;
 
   @CreateDateColumn()
   createdAt: Date;

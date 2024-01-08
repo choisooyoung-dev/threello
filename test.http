@@ -1,0 +1,41 @@
+@host = http://localhost:3000
+@Token = {{login.response.body.$.access_token}}
+
+// 리스트 테스트
+### 리스트등록
+POST {{host}}/api/list
+Content-Type: application/json
+
+{
+  "kanban_boards_id": 1,
+  "title": "Todos"
+}
+
+### 리스트보기
+GET {{host}}/api/list/all/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 보기
+GET {{host}}/api/list/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 타이틀수정
+PATCH {{host}}/api/list/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "title": "Todos1"
+}
+
+### 특정 예약 순서수정
+PATCH {{host}}/api/list/1/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 삭제
+DELETE {{host}}/api/list/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json

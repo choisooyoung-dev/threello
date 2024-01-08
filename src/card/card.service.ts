@@ -25,32 +25,37 @@ export class CardService {
     const { listId, color, title, content, dueDate, deadlineStatus } =
       createCardDto;
 
-    console.log('dueDateValue ===> ', dueDateValue);
-    console.log('dueTimeValue ====> ', dueTimeValue);
+    // console.log('dueDateValue ===> ', dueDateValue);
+    // console.log('dueTimeValue ====> ', dueTimeValue);
 
     const getAllCards = await this.cardRepository.find();
     //  console.log(allGetCard);
 
     const cardOrder = getAllCards.length + 1;
 
+    // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
 
     const dueDateResult = new Date(`${dueDateValue} ${dueTimeValue}`);
-    console.log('dueDateResult: ', dueDateResult);
+    // console.log('dueDateResult: ', dueDateResult);
 
     const nowDate = new Date();
-    console.log('nowDate ===> ', nowDate);
+    // console.log('nowDate ===> ', nowDate);
 
     const timeDifference = dueDateResult.getTime() - nowDate.getTime();
 
     const hoursDifference = timeDifference / (1000 * 60 * 60);
 
     let deadlineStatusValue: DeadlineStatus;
+
+    // 마감기한 넘겼을때
     if (hoursDifference <= 0) {
       deadlineStatusValue = DeadlineStatus.overdue;
     } else if (hoursDifference < 24) {
+      // 마감기한 하루 전
       deadlineStatusValue = DeadlineStatus.soon;
     } else {
+      // 그 외
       deadlineStatusValue = null;
     }
 

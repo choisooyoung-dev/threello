@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "kanban_boards_id": 1,
-  "title": "Todos"
+  "title": "Done"
 }
 
 ### 리스트보기

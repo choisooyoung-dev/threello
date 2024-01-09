@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { DeadlineStatus } from './types/deadline.status.type';
@@ -134,6 +134,7 @@ export class CardService {
   // 카드 순서 변경
   async moveCardBlock(cardId: number, to: number) {
     console.log('to ===> ', to);
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -190,6 +191,66 @@ export class CardService {
 
       await queryRunner.commitTransaction();
       return cardBlock[0];
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return { status: 404, message: error.message };
+    } finally {
+      // 사용이 끝난 후에는 항상 queryRunner를 해제
+      await queryRunner.release();
+    }
+  }
+
+  // 리스트간 카드 이동
+  async moveCardBlockBeteweenList(
+    cardId: number,
+    listId: number,
+    listTo: number,
+    cardTo: number,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const moveCard = await this.cardRepository.findOne({
+        where: { id: cardId },
+      });
+
+      const moveCardListId = moveCard.listId;
+
+      // 옮기기 전 list_id 값의 속한 카드들 정렬
+      const existingCard = await this.cardRepository.find({
+        where: { list: { id: listId } },
+      });
+
+      console.log('existingCard: ', existingCard);
+
+      if (!existingCard)
+        throw new NotFoundException('해당하는 카드가 없습니다.');
+
+      const existingCardOrder = existingCard[0].cardOrder;
+      console.log('existingCardOrder: ', existingCardOrder);
+
+      //const listId = existingCard[0].listId;
+
+      // const countArr = await this.cardRepository.find();
+      // console.log('countArr ===> ', countArr);
+      // const count = countArr.length;
+      // console.log('count ===> ', count);
+
+      // if (count === existingCardOrder) {
+      //   await this.cardRepository.delete({ id });
+      //   return existingCard;
+      // }
+      // await this.moveCardBlock(id, count);
+
+      const changeListId = await this.cardRepository.update(cardId, {
+        listId: listTo,
+      });
+
+      const changeCardOrder = await this.moveCardBlock(cardId, cardTo);
+
+      await queryRunner.commitTransaction();
+      //return changeCardOrder;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       return { status: 404, message: error.message };

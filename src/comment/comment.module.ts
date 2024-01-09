@@ -5,9 +5,12 @@ import { Comment } from './entities/comment.entity';
 import { CommentService } from './comment.service';
 import { CommentController } from './comment.controller';
 
+import { Card } from '../card/entities/card.entity';
+import { CardService } from 'src/card/card.service';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment])],
+  imports: [TypeOrmModule.forFeature([Comment, Card])],
   controllers: [CommentController],
-  providers: [CommentService],
+  providers: [CommentService, CardService],
 })
 export class CommentModule {}

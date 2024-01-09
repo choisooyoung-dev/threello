@@ -9,10 +9,6 @@ export class CreateCardDto extends PickType(Card, [
   'color',
   'deadline_status',
 ]) {
-  @IsNotEmpty()
-  @IsNumber()
-  list_id: number;
-
   @IsOptional()
   @IsString()
   due_date: string;

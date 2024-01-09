@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, HttpStatus } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -59,6 +59,7 @@ export class CardService {
     }
 
     const newCard = await this.cardRepository.save({
+      list: { id: list_id },
       title,
       content,
       card_order: cardOrder,

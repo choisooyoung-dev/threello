@@ -19,15 +19,15 @@ export class CardController {
   constructor(private readonly cardService: CardService) {}
 
   // 카드 생성
-  @Post('/create/:list_id')
+  @Post('/create')
   async create(
-    @Param('list_id') list_id: string,
+    @Body('list_id') list_id: number,
     @Body() createCardDto: CreateCardDto,
     @Body('dueTimeValue') dueTimeValue: string,
     @Body('dueDateValue') dueDateValue: string,
   ) {
     const data = await this.cardService.create(
-      +list_id,
+      list_id,
       createCardDto,
       dueDateValue,
       dueTimeValue,

@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  BadRequestException,
 } from '@nestjs/common';
 import { CheckListService } from './checklist.service';
 import { CreateCheckListDto } from './dto/create-checklist.dto';

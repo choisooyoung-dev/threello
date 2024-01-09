@@ -23,7 +23,7 @@ export class CheckItem {
   @Column()
   content: string;
 
-  @Column()
+  @Column({ default: false })
   is_done: boolean;
 
   @CreateDateColumn()

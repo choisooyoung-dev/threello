@@ -9,5 +9,6 @@ import { CardModule } from 'src/card/card.module';
   imports: [TypeOrmModule.forFeature([CheckList]), CardModule],
   providers: [CheckListService],
   controllers: [CheckListController],
+  exports: [CheckListService],
 })
 export class ChecklistModule {}

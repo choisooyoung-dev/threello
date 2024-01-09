@@ -17,7 +17,7 @@ export class List {
   id: number;
 
   @Column()
-  kanban_boards_id: number;
+  boards_id: number;
 
   @Column()
   lists_order: number;

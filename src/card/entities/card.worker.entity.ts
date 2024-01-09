@@ -12,6 +12,7 @@ export class CardWorker {
   @Column()
   user_id: number;
 
+  // 코드 수정한 부분
   @ManyToOne(() => User, (user) => user.cardWorkers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

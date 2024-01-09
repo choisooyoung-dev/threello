@@ -4,6 +4,6 @@ import { CheckItemController } from './check_item.controller';
 
 @Module({
   providers: [CheckItemService],
-  controllers: [CheckItemController]
+  controllers: [CheckItemController],
 })
 export class CheckItemModule {}

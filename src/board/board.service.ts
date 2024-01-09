@@ -3,12 +3,16 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from './entities/board.entity';
+import { BoardMember } from './entities/board-member.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class BoardService {
   constructor(
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
+    @InjectRepository(BoardMember)
+    private boardMemberRepository: Repository<BoardMember>,
   ) {}
 
   // 새 보드 생성
@@ -52,6 +56,15 @@ export class BoardService {
     const result = await this.boardRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(` 해당 보드를 찾을 수 없습니다.`);
+    }
+  }
+  //출력되는지 테스트 할 것
+  async invite(boardId: number, email: string, user: User) {
+    try {
+      const board = await this.boardRepository.findOneBy({ id: boardId });
+      console.log(board);
+    } catch (error) {
+      throw new NotFoundException("id with ${boardId} board isn't exit");
     }
   }
 }

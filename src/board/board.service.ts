@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,10 +23,22 @@ export class BoardService {
   ) {}
 
   // 새 보드 생성
-  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    userId: number,
+  ): Promise<Board> {
     const newBoard = this.boardRepository.create(createBoardDto);
-    await this.boardRepository.save(newBoard);
-    return newBoard;
+    const savedBoard = await this.boardRepository.save(newBoard);
+
+    // 생성한 사용자에게 관리자 권한 부여
+    const boardMember = this.boardMemberRepository.create({
+      user: { id: userId },
+      board: savedBoard,
+      is_host: true,
+    });
+    await this.boardMemberRepository.save(boardMember);
+
+    return savedBoard;
   }
 
   // 전체 보드 목록 조회
@@ -44,10 +57,23 @@ export class BoardService {
 
   // 보드 수정
   async updateBoard(
+    userId: number,
     id: number,
     updateBoardDto: CreateBoardDto,
   ): Promise<Board> {
-    const board = await this.boardRepository.findOneBy({ id });
+    const board = await this.boardRepository.findOne({
+      where: { id },
+      relations: ['boardMembers'],
+    });
+
+    const isUserHost = board.boardMembers.some(
+      (member) => member.user.id === userId && member.is_host,
+    );
+
+    if (!isUserHost) {
+      throw new UnauthorizedException('수정 권한이 없습니다.');
+    }
+
     if (!board) {
       throw new NotFoundException(`해당 보드를 찾을 수 없습니다.`);
     }
@@ -58,7 +84,23 @@ export class BoardService {
   }
 
   // 보드 삭제
-  async deleteBoard(id: number): Promise<void> {
+  async deleteBoard(
+    userId: number, // 사용자 ID 파라미터 추가
+    id: number,
+  ): Promise<void> {
+    const board = await this.boardRepository.findOne({
+      where: { id },
+      relations: ['boardMembers'],
+    });
+
+    const isUserHost = board.boardMembers.some(
+      (member) => member.user.id === userId && member.is_host,
+    );
+
+    if (!isUserHost) {
+      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    }
+
     const result = await this.boardRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(` 해당 보드를 찾을 수 없습니다.`);

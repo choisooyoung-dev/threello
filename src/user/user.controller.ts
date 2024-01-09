@@ -16,10 +16,13 @@ import { SigninUserDto } from './dto/signin-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from './entities/user.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+  //
 
   @Post('/signup')
   @UsePipes(ValidationPipe)
@@ -38,6 +41,7 @@ export class UserController {
     return await this.userService.signin(signinUserDto);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('/myinfo')
   async getMyInfo(@GetUser() user: User) {
@@ -49,12 +53,14 @@ export class UserController {
     };
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Delete('/myaccount')
   async withdraw(@GetUser() user: User) {
     return await this.userService.withdraw(user);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @UsePipes(ValidationPipe)
   @Patch('/myinfo')

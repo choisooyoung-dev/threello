@@ -12,7 +12,9 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('card')
 @Controller('card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
@@ -88,5 +90,27 @@ export class CardController {
   ) {
     const movedCard = await this.cardService.moveCardBlock(+cardId, +to);
     return { status: HttpStatus.OK, message: '카드 순서 변경 성공', movedCard };
+  }
+
+  // 카드 리스트간 순서 변경
+  @Patch(':cardId/:listId/:listTo/:cardTo')
+  async moveCardBetweenList(
+    @Param('cardId') cardId: string,
+    @Param('listId') listId: string,
+    @Param('listTo') listTo: string,
+    @Param('cardTo') cardTo: string,
+  ) {
+    const movedCardBetweenList =
+      await this.cardService.moveCardBlockBeteweenList(
+        +cardId,
+        +listId,
+        +listTo,
+        +cardTo,
+      );
+    return {
+      status: HttpStatus.OK,
+      message: '카드 리스트간 이동 성공',
+      movedCardBetweenList,
+    };
   }
 }

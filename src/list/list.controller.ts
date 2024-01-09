@@ -25,9 +25,9 @@ export class ListController {
 
   @Post()
   async create(@Body() createListDto: CreateListDto) {
-    await this.boardService.getBoardById(createListDto.kanban_boards_id);
+    await this.boardService.getBoardById(createListDto.boards_id);
     const listCount = await this.listService.count(
-      createListDto.kanban_boards_id,
+      createListDto.boards_id,
     );
     return await this.listService.create(
       createListDto,
@@ -35,9 +35,9 @@ export class ListController {
     );
   }
   // 전체보기는 보드보기에 딸려서 이미 실행될거같음 일단 기재
-  @Get('all/:kanban_boards_id')
-  async findAll(@Param('kanban_boards_id') kanban_boards_id: number) {
-    return await this.listService.findAll(kanban_boards_id);
+  @Get('all/:boards_id')
+  async findAll(@Param('boards_id') boards_id: number) {
+    return await this.listService.findAll(boards_id);
   }
 
   @Get(':listId')

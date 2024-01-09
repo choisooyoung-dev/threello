@@ -10,6 +10,8 @@ import { CardModule } from './card/card.module';
 import { BoardModule } from './board/board.module';
 import { CommentModule } from './comment/comment.module';
 import { ListModule } from './list/list.module';
+import { ChecklistModule } from './checklist/checklist.module';
+import { CheckItemModule } from './check_item/check_item.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { ListModule } from './list/list.module';
     BoardModule,
     CommentModule,
     ListModule,
+    ChecklistModule,
+    CheckItemModule,
   ], // 서버 전체에서 ConfigModule 쓸거야
   controllers: [AppController],
   providers: [AppService],

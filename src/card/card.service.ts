@@ -19,15 +19,12 @@ export class CardService {
 
   // 카드 생성
   async create(
+    list_id: number,
     createCardDto: CreateCardDto,
     dueDateValue: string,
     dueTimeValue: string,
   ) {
-    const { listId, color, title, content, dueDate, deadlineStatus } =
-      createCardDto;
-
-    // console.log('dueDateValue ===> ', dueDateValue);
-    // console.log('dueTimeValue ====> ', dueTimeValue);
+    const { title, color, content } = createCardDto;
 
     const getAllCards = await this.cardRepository.find();
     //  console.log(allGetCard);
@@ -49,7 +46,8 @@ export class CardService {
 
     let deadlineStatusValue: DeadlineStatus;
 
-    // 마감기한 넘겼을때
+    // db상으로는 complete, uncomplete -> api 따로 만들어주기
+    // 마감기한 넘겼을때 --> return 값으로 보여주기
     if (hoursDifference <= 0) {
       deadlineStatusValue = DeadlineStatus.overdue;
     } else if (hoursDifference < 24) {
@@ -61,16 +59,16 @@ export class CardService {
     }
 
     const newCard = await this.cardRepository.save({
+      list: { id: list_id },
       title,
       content,
-      listId,
-      cardOrder,
+      card_order: cardOrder,
       color,
       dueDate: dueDateResult,
       deadlineStatus: deadlineStatusValue,
     });
 
-    return newCard;
+    return this.getCard(newCard.id);
   }
 
   // 모든 카드 조회
@@ -105,7 +103,7 @@ export class CardService {
       if (!existingCard)
         throw new NotFoundException('해당하는 카드가 없습니다.');
 
-      const existingCardOrder = existingCard[0].cardOrder;
+      const existingCardOrder = existingCard[0].card_order;
       console.log('existingCardOrder: ', existingCardOrder);
 
       //const listId = existingCard[0].listId;
@@ -151,22 +149,22 @@ export class CardService {
 
       const allCards = await this.cardRepository.find();
 
-      const cardOrderValues = allCards.map((card) => card.cardOrder);
+      const cardOrderValues = allCards.map((card) => card.card_order);
       console.log('cardOrderValues: ', cardOrderValues);
       if (!cardOrderValues.includes(to))
         throw new NotFoundException('해당하는 위치가 없습니다.');
 
       console.log('cardBlock===> ', cardBlock);
 
-      console.log(cardBlock[0].cardOrder);
+      console.log(cardBlock[0].card_order);
       let max = 0;
       let min = 0;
-      if (cardBlock[0].cardOrder > to) {
-        max = cardBlock[0].cardOrder;
+      if (cardBlock[0].card_order > to) {
+        max = cardBlock[0].card_order;
         min = to;
       } else {
         max = to;
-        min = cardBlock[0].cardOrder;
+        min = cardBlock[0].card_order;
       }
 
       const currentCards = await this.cardRepository
@@ -179,12 +177,12 @@ export class CardService {
 
       console.log(currentCards);
 
-      const direction = to > cardBlock[0].cardOrder ? -1 : 1;
+      const direction = to > cardBlock[0].card_order ? -1 : 1;
 
       for (const card of currentCards) {
-        card.cardOrder += direction;
+        card.card_order += direction;
       }
-      cardBlock[0].cardOrder = to;
+      cardBlock[0].card_order = to;
 
       await queryRunner.manager.save(Card, currentCards);
       await queryRunner.manager.save(Card, cardBlock[0]);
@@ -215,11 +213,13 @@ export class CardService {
         where: { id: cardId },
       });
 
-      const moveCardListId = moveCard.listId;
+      console.log(moveCard);
+      // const moveCardListId = moveCard.listId;
 
       // 옮기기 전 list_id 값의 속한 카드들 정렬
       const existingCard = await this.cardRepository.find({
         where: { list: { id: listId } },
+        select: ['list'],
       });
 
       console.log('existingCard: ', existingCard);
@@ -227,27 +227,30 @@ export class CardService {
       if (!existingCard)
         throw new NotFoundException('해당하는 카드가 없습니다.');
 
-      const existingCardOrder = existingCard[0].cardOrder;
+      const existingCardOrder = existingCard[0].card_order;
       console.log('existingCardOrder: ', existingCardOrder);
 
-      //const listId = existingCard[0].listId;
+      // 옮겨질 카드를 맨 뒤에 순서로 보낸 후 옮겨질 카드의 리스트 아이디 값을 바꾼다.
 
-      // const countArr = await this.cardRepository.find();
-      // console.log('countArr ===> ', countArr);
-      // const count = countArr.length;
-      // console.log('count ===> ', count);
-
-      // if (count === existingCardOrder) {
-      //   await this.cardRepository.delete({ id });
-      //   return existingCard;
-      // }
-      // await this.moveCardBlock(id, count);
+      const cardCount = existingCard.length;
+      // await this.moveCardBlock(cardId, cardCount);
 
       const changeListId = await this.cardRepository.update(cardId, {
-        listId: listTo,
+        list: { id: listTo },
       });
 
-      const changeCardOrder = await this.moveCardBlock(cardId, cardTo);
+      // 바뀐 리스트의 Card 불러오기
+      const changeListCard = await this.cardRepository.find({
+        where: { list: { id: listTo } },
+      });
+
+      const changeCardLength = changeListCard.length;
+
+      if (cardTo >= changeCardLength) {
+        cardTo = changeCardLength;
+      }
+
+      await this.moveCardBlock(cardId, changeCardLength);
 
       await queryRunner.commitTransaction();
       //return changeCardOrder;
@@ -269,7 +272,7 @@ export class CardService {
     for (const user of userIds) {
       // 작업자 중복 체크
       const existingWorker = await this.cardWorkerRepository.findOne({
-        where: { userId: user.id, card: { id: cardId } },
+        where: { user_id: user.id, card: { id: cardId } },
       });
 
       // 중복된 사람 제외 등록
@@ -286,17 +289,14 @@ export class CardService {
 
   // 작업자 삭제
   async removeWorker(cardId: number, userId: number) {
-    const existingWorker = await this.cardWorkerRepository.findOne({
-      where: { userId, card: { id: cardId } },
-    });
-
-    if (!existingWorker)
-      throw new NotFoundException('해당되는 사용자가 없습니다.');
-
-    const deleteWorker = await this.cardWorkerRepository.delete({
-      userId,
-    });
-
-    return deleteWorker;
+    // const existingWorker = await this.cardWorkerRepository.findOne({
+    //   where: { userId: user_id, card: { id: cardId } },
+    // });
+    // if (!existingWorker)
+    //   throw new NotFoundException('해당되는 사용자가 없습니다.');
+    // const deleteWorker = await this.cardWorkerRepository.delete({
+    //   userId,
+    // });
+    // return deleteWorker;
   }
 }

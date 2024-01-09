@@ -1,16 +1,15 @@
 import { PickType } from '@nestjs/mapped-types';
 import { Card } from '../entities/card.entity';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCardDto extends PickType(Card, [
-  'listId',
-  'cardOrder',
+  'card_order',
   'title',
   'content',
   'color',
-  'deadlineStatus',
+  'deadline_status',
 ]) {
   @IsOptional()
   @IsString()
-  dueDate: string;
+  due_date: string;
 }

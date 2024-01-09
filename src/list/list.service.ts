@@ -101,6 +101,7 @@ export class ListService {
     const list = (await this.verifyListById(id)).list[0];
     const kanban_boards_id = list.kanban_boards_id;
     const count = await this.count(kanban_boards_id);
+    console.log(count);
 
     // 얘가 맨 마지막 애라면 나머지 order는 변경할 필요 없이 지우고 끗
     if (Number(count.total_list_count) === list.lists_order) {

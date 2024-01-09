@@ -9,8 +9,8 @@ export class CardWorker {
 
   @IsNumber()
   @Column()
-  userId: number;
+  user_id: number;
 
-  @ManyToOne(() => Card, (card) => card.cardWorkers)
+  @ManyToOne(() => Card, (card) => card.card_workers)
   card: Card;
 }

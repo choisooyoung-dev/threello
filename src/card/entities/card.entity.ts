@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 import { List } from '../../list/entities/list.entity';
@@ -20,14 +21,10 @@ export class Card {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @IsNumber()
-  @Column()
-  listId: number;
-
   @IsOptional()
   @IsNumber()
   @Column()
-  cardOrder?: number;
+  card_order?: number;
 
   @IsNotEmpty({ message: '카드 제목을 입력해주세요.' })
   @IsString()
@@ -46,27 +43,28 @@ export class Card {
 
   @IsOptional()
   @Column({ nullable: true })
-  dueDate?: Date;
+  due_date?: Date;
 
   @IsOptional()
   @Column({ type: 'enum', enum: DeadlineStatus, nullable: true })
-  deadlineStatus?: DeadlineStatus;
+  deadline_status?: DeadlineStatus;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @OneToMany(() => Comment, (comment) => comment.card)
   comments: Comment[];
 
   @OneToMany(() => CardWorker, (cardWorker) => cardWorker.card)
-  cardWorkers: CardWorker[];
+  card_workers: CardWorker[];
 
   @ManyToOne(() => List, (list) => list.card, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn([{ name: 'list_id', referencedColumnName: 'id' }])
   list: List;
 }

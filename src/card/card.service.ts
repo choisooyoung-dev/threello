@@ -35,28 +35,7 @@ export class CardService {
     if (!dueTimeValue) dueTimeValue = '00:00';
 
     const dueDateResult = new Date(`${dueDateValue} ${dueTimeValue}`);
-    // console.log('dueDateResult: ', dueDateResult);
-
-    const nowDate = new Date();
-    // console.log('nowDate ===> ', nowDate);
-
-    const timeDifference = dueDateResult.getTime() - nowDate.getTime();
-
-    const hoursDifference = timeDifference / (1000 * 60 * 60);
-
-    let deadlineStatusValue: DeadlineStatus;
-
-    // db상으로는 complete, uncomplete -> api 따로 만들어주기
-    // 마감기한 넘겼을때 --> return 값으로 보여주기
-    if (hoursDifference <= 0) {
-      deadlineStatusValue = DeadlineStatus.overdue;
-    } else if (hoursDifference < 24) {
-      // 마감기한 하루 전
-      deadlineStatusValue = DeadlineStatus.soon;
-    } else {
-      // 그 외
-      deadlineStatusValue = null;
-    }
+    console.log('dueDateResult: ', dueDateResult);
 
     const newCard = await this.cardRepository.save({
       list: { id: list_id },
@@ -64,8 +43,7 @@ export class CardService {
       content,
       card_order: cardOrder,
       color,
-      dueDate: dueDateResult,
-      deadlineStatus: deadlineStatusValue,
+      due_date: dueDateResult,
     });
 
     return this.getCard(newCard.id);
@@ -77,9 +55,41 @@ export class CardService {
     return getAllCards;
   }
 
-  // 특정 카드 조회
+  // 특정 카드 조회, 마감기한에 따른 상태 조회
   async getCard(id: number) {
     const getCard = await this.cardRepository.findOneBy({ id });
+
+    const dueDate = getCard.due_date;
+
+    // 마감기한 설정해주지 않았으면 카드만 조회
+    if (!dueDate) return getCard;
+
+    // 마감기한 설정해줬다면?
+    // 마감기한 상태 갖고오기
+    const deadlineStatus = getCard.deadline_status;
+
+    // 마감기한 상태가 uncomplete면?
+    if (deadlineStatus === 0) {
+      const nowDate = new Date();
+      // console.log('nowDate ===> ', nowDate);
+
+      const timeDifference = dueDate.getTime() - nowDate.getTime();
+
+      const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+      let deadlineStatusWithTime: string = '';
+
+      // 마감기한 넘겼을때
+      if (hoursDifference <= 0) {
+        deadlineStatusWithTime = 'Overdue';
+      } else if (hoursDifference < 24) {
+        // 마감기한 하루 전
+        deadlineStatusWithTime = 'Due Soon';
+      }
+      return { getCard, deadlineStatusWithTime };
+    }
+
+    // 마감기한 설정해줬고, 상태가 complete면?
     return getCard;
   }
 
@@ -248,10 +258,10 @@ export class CardService {
 
       if (cardTo >= changeCardLength) {
         cardTo = changeCardLength;
+
+        await this.moveCardBlock(cardId, cardTo);
       }
-
-      await this.moveCardBlock(cardId, changeCardLength);
-
+      await this.moveCardBlock(cardId, cardTo);
       await queryRunner.commitTransaction();
       //return changeCardOrder;
     } catch (error) {
@@ -270,6 +280,9 @@ export class CardService {
     const createdWorkers = [];
 
     for (const user of userIds) {
+      // 작업자 유저아이디가 유저테이블에 있는지
+      // 해당 유저가 멤버인지
+
       // 작업자 중복 체크
       const existingWorker = await this.cardWorkerRepository.findOne({
         where: { user_id: user.id, card: { id: cardId } },
@@ -289,14 +302,14 @@ export class CardService {
 
   // 작업자 삭제
   async removeWorker(cardId: number, userId: number) {
-    // const existingWorker = await this.cardWorkerRepository.findOne({
-    //   where: { userId: user_id, card: { id: cardId } },
-    // });
-    // if (!existingWorker)
-    //   throw new NotFoundException('해당되는 사용자가 없습니다.');
-    // const deleteWorker = await this.cardWorkerRepository.delete({
-    //   userId,
-    // });
-    // return deleteWorker;
+    const existingWorker = await this.cardWorkerRepository.findOne({
+      where: { user: { id: userId }, card: { id: cardId } },
+    });
+    if (!existingWorker)
+      throw new NotFoundException('해당되는 사용자가 없습니다.');
+    const deleteWorker = await this.cardWorkerRepository.delete({
+      user: { id: userId },
+    });
+    return deleteWorker;
   }
 }

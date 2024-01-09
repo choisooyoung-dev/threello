@@ -63,11 +63,6 @@ export class BoardController {
     await this.boardService.deleteBoard(id);
   }
 
-  //보드 내에서 초대가 가능하게
-  //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
-  //param 보드ID받고 body 상대 이메일 받고 그냥 추가.
-  //이미 초대되어있거나 멤버라면?
-
   @UseGuards(AuthGuard('jwt'))
   @Post('/:boardId')
   @UsePipes(ValidationPipe)

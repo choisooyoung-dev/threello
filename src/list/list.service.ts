@@ -19,15 +19,15 @@ export class ListService {
   ) {}
 
   async create(createListDto: CreateListDto, lists_order) {
-    const { kanban_boards_id, title } = createListDto;
-    await this.listRepository.save({ kanban_boards_id, lists_order, title });
-    return { kanban_boards_id, title, lists_order };
+    const { boards_id, title } = createListDto;
+    await this.listRepository.save({ boards_id, lists_order, title });
+    return { boards_id, title, lists_order };
   }
 
-  async findAll(kanban_boards_id) {
+  async findAll(boards_id) {
     const lists = await this.listRepository
       .createQueryBuilder('list')
-      .where('list.kanban_boards_id = :kanban_boards_id', { kanban_boards_id })
+      .where('list.boards_id = :boards_id', { boards_id })
       .leftJoinAndSelect('list.card', 'card')
       .getRawMany();
 
@@ -99,8 +99,8 @@ export class ListService {
   async remove(id: number) {
     // 일단 리스트를 열람하고 얘가 전체중 몇번째애인지 확인
     const list = (await this.verifyListById(id)).list[0];
-    const kanban_boards_id = list.kanban_boards_id;
-    const count = await this.count(kanban_boards_id);
+    const boards_id = list.boards_id;
+    const count = await this.count(boards_id);
 
     // 얘가 맨 마지막 애라면 나머지 order는 변경할 필요 없이 지우고 끗
     if (Number(count.total_list_count) === list.lists_order) {
@@ -114,10 +114,10 @@ export class ListService {
   }
 
   // 지원메서드 count(전체 list 개수를 세 줌)
-  async count(kanban_boards_id: number) {
+  async count(boards_id: number) {
     const listCount = await this.listRepository
       .createQueryBuilder('list')
-      .where({ kanban_boards_id: kanban_boards_id })
+      .where({ boards_id: boards_id })
       .select('COUNT(list.lists_order)', 'total_list_count')
       .getRawOne();
 

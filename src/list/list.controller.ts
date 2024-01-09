@@ -9,16 +9,23 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ListService } from './list.service';
+import { BoardService } from '../board/board.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('list')
 @Controller('list')
 export class ListController {
   // 하단에 board_users 서비스 권한이 추가되어야함
-  constructor(private readonly listService: ListService) {}
+  constructor(
+    private readonly listService: ListService,
+    private readonly boardService: BoardService,
+  ) {}
 
   @Post()
   async create(@Body() createListDto: CreateListDto) {
+    await this.boardService.getBoardById(createListDto.kanban_boards_id);
     const listCount = await this.listService.count(
       createListDto.kanban_boards_id,
     );

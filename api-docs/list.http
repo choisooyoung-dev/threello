@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "kanban_boards_id": 1,
-  "title": "Todos"
+  "title": "Done"
 }
 
 ### 리스트보기
@@ -31,7 +31,7 @@ Content-Type: application/json
 }
 
 ### 특정 예약 순서수정
-PATCH {{host}}/api/list/1/1
+PATCH {{host}}/api/list/2/2
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 

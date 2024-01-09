@@ -1,4 +1,3 @@
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -6,7 +5,6 @@ import { ConfigModule } from '@nestjs/config'; // env 파일 쓸 때 쓰는 라�
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { configModuleValidationSchema } from './configs/env-validation.config';
 import { typeOrmModuleOptions } from './configs/database.config';
-import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CardModule } from './card/card.module';
 import { BoardModule } from './board/board.module';
@@ -20,7 +18,6 @@ import { ListModule } from './list/list.module';
       validationSchema: configModuleValidationSchema,
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
-    AuthModule,
     UserModule,
     CardModule,
     BoardModule,

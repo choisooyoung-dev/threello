@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { List } from '../../list/entities/list.entity';
+import { BoardMember } from './board-member.entity';
 
 @Entity('boards')
 export class Board {
@@ -32,4 +33,7 @@ export class Board {
 
   @OneToMany(() => List, (list) => list.board)
   list: List[];
+
+  @OneToMany(() => BoardMember, (boardMembers) => boardMembers.board) // 보드 멤버와의 일대다 관계 설정
+  boardMembers: BoardMember[];
 }

@@ -13,8 +13,7 @@ export const typeOrmModuleOptions: TypeOrmModuleAsyncOptions = {
     password: configService.get<string>('DB_PASSWORD'),
     database: configService.get<string>('DB_NAME'),
     synchronize: configService.get<boolean>('DB_SYNC'),
-    autoLoadEntities: true,
+    entities: [__dirname + '/../**/*.entity.{js,ts}'],
     logging: true,
-    namingStrategy: new SnakeNamingStrategy(),
   }),
 };

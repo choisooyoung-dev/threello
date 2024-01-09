@@ -1,7 +1,9 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -72,14 +74,29 @@ export class BoardService {
   async invite(boardId: number, email: string, user: User) {
     let board: Board;
     let boardMember: BoardMember;
+    let result: BoardMember;
+
+    //해당 보드가 있는가.
     try {
       board = await this.boardRepository.findOneBy({ id: boardId });
     } catch (error) {
       throw new InternalServerErrorException('Internal server error');
     }
     if (!board) {
-      throw new NotFoundException("id with ${boardId} board isn't exit");
+      throw new NotFoundException(`id with ${boardId} board isn't exit`);
     }
+    //해당 보드의 호스트인가.
+    try {
+      result = await this.boardMemberRepository.findOne({
+        where: { board, user },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('internal server error');
+    }
+    if (!result || result.is_host == false) {
+      throw new UnauthorizedException("you isn't host in the board");
+    }
+    //초대하고자 하는 유저가 있는가.
     let invitedUser: User;
     try {
       invitedUser = await this.userRepository.findOneBy({ email });
@@ -89,6 +106,21 @@ export class BoardService {
     if (!invitedUser) {
       throw new NotFoundException(`user with ${email} isn't exit`);
     }
+    //해당 보드에 이미 있는 유저인지 확인
+    try {
+      boardMember = await this.boardMemberRepository.findOneBy({
+        user: invitedUser,
+        board,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Internal server error');
+    }
+    if (boardMember) {
+      throw new ConflictException(
+        'the user you invite is already in the board',
+      );
+    }
+    //저장
     try {
       boardMember = this.boardMemberRepository.create({
         is_accept: false,
@@ -100,6 +132,6 @@ export class BoardService {
     } catch (error) {
       throw new InternalServerErrorException('Internal server error');
     }
-    console.log(boardMember);
+    return await { code: 201, message: 'you successfully invite user' };
   }
 }

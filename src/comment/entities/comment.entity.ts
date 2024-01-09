@@ -17,10 +17,10 @@ export class Comment {
   id: number;
 
   @Column()
-  cardId: number;
+  card_id: number;
 
   @Column()
-  userId: number;
+  user_id: number;
 
   @IsNotEmpty({ message: '내용을 입력해 주세요.' })
   @IsString()
@@ -28,10 +28,10 @@ export class Comment {
   content: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
   user: User;

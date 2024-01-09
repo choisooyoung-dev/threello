@@ -10,8 +10,9 @@ import { CardService } from 'src/card/card.service';
 import { CardWorker } from 'src/card/entities/card.worker.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Card, CardWorker])],
+  imports: [TypeOrmModule.forFeature([Comment, Card, CardWorker]), CardService],
   controllers: [CommentController],
-  providers: [CommentService, CardService],
+  providers: [CommentService],
+  exports: [CardService],
 })
 export class CommentModule {}

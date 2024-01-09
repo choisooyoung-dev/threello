@@ -67,4 +67,7 @@ export class Card {
   })
   @JoinColumn([{ name: 'list_id', referencedColumnName: 'id' }])
   list: List;
+
+  @OneToMany(() => CardWorker, (cardWorkers) => cardWorkers.card)
+  cardWorkers: CardWorker[];
 }

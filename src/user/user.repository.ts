@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
@@ -64,18 +65,16 @@ export class UserRepository extends Repository<User> {
       const deletedUser = await this.remove(user);
       if (deletedUser) {
         return { code: 200, message: 'Withdrawal successful' };
-      } else {
-        throw new InternalServerErrorException('Withdrawal failed');
       }
     } catch (error) {
       throw new InternalServerErrorException('Withdrawal failed');
     }
+    throw new NotFoundException('Not Exiting User');
   }
 
   async patchMyInfo(user: User, nick: string) {
     try {
       user.nick = nick;
-      console.log(user);
       await this.save(user);
       return { code: 200, message: 'My info updated successfully' };
     } catch (error) {

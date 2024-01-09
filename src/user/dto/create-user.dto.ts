@@ -29,4 +29,3 @@ export class CreateUserDto {
   @IsNotEmpty()
   readonly passwordConfirm: string;
 }
-

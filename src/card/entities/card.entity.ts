@@ -58,9 +58,6 @@ export class Card {
   @OneToMany(() => Comment, (comment) => comment.card)
   comments: Comment[];
 
-  @OneToMany(() => CardWorker, (cardWorker) => cardWorker.card)
-  card_workers: CardWorker[];
-
   @ManyToOne(() => List, (list) => list.card, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

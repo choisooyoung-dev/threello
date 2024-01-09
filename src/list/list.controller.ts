@@ -26,9 +26,7 @@ export class ListController {
   @Post()
   async create(@Body() createListDto: CreateListDto) {
     await this.boardService.getBoardById(createListDto.boards_id);
-    const listCount = await this.listService.count(
-      createListDto.boards_id,
-    );
+    const listCount = await this.listService.count(createListDto.boards_id);
     return await this.listService.create(
       createListDto,
       Number(listCount.total_list_count) + 1,

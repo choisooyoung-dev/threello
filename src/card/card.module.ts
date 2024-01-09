@@ -10,5 +10,6 @@ import { Comment } from 'src/comment/entities/comment.entity';
   imports: [TypeOrmModule.forFeature([Card, CardWorker, Comment])],
   controllers: [CardController],
   providers: [CardService],
+  exports: [CardService],
 })
 export class CardModule {}

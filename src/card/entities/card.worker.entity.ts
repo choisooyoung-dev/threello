@@ -18,15 +18,20 @@ export class CardWorker {
   @Column()
   user_id: number;
 
+  @ManyToOne(() => Card, (card) => card.cardWorkers)
+  card: Card;
+
   @ManyToOne(() => User, (user) => user.cardWorkers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  user: User;
+  @JoinColumn([{ name: 'cardWorker_id', referencedColumnName: 'id' }])
+  User: User;
 
   @ManyToOne(() => Card, (card) => card.cardWorkers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  card: Card;
+  @JoinColumn([{ name: 'cardWorker_id', referencedColumnName: 'id' }])
+  Card: Card;
 }

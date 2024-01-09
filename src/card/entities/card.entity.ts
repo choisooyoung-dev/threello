@@ -69,7 +69,4 @@ export class Card {
     onUpdate: 'CASCADE',
   })
   list: List;
-
-  @OneToMany(() => Comment, (Comment) => Comment.card)
-  comments: Comment[];
 }

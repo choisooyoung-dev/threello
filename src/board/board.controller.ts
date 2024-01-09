@@ -7,12 +7,16 @@ import {
   Patch,
   Delete,
   UseGuards,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @ApiTags('boards')
 @Controller('boards')
@@ -23,12 +27,10 @@ export class BoardController {
   // 칸반보드 만들시 바로 칸반보드사용유저 만들어서 호스트로 등록해두기
   @UseGuards(AuthGuard('jwt'))
   @Post()
+  @UsePipes(ValidationPipe)
   async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
     return await this.boardService.createBoard(createBoardDto);
   }
-
-  //보드 내에서 초대가 가능하게
-  //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
 
   // 전체 보드 목록 조회
   @UseGuards(AuthGuard('jwt'))
@@ -59,5 +61,16 @@ export class BoardController {
   @Delete(':id')
   async deleteBoard(@Param('id') id: number): Promise<void> {
     await this.boardService.deleteBoard(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/:boardId')
+  @UsePipes(ValidationPipe)
+  async invite(
+    @Param('boardId') boardId: number,
+    @Body('email') email: string,
+    @GetUser() user: User,
+  ) {
+    await this.boardService.invite(boardId, email, user);
   }
 }

@@ -10,9 +10,6 @@ import {
 } from 'typeorm';
 
 import { List } from '../../list/entities/list.entity';
-<<<<<<< HEAD
-import { Comment } from '../../comment/entities/comment.entity';
-=======
 import { Color } from 'src/common/types/color.type';
 import { CardWorker } from './card.worker.entity';
 import { Comment } from 'src/comment/entities/comment.entity';

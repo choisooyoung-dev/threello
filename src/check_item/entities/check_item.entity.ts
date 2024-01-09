@@ -8,22 +8,24 @@ import {
   UpdateDateColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Board } from '../../board/entities/board.entity';
-import { Card } from '../../card/entities/card.entity';
+import { CheckList } from '../../checklist/entities/checklist.entity';
 
-@Entity('lists')
-export class List {
+@Entity('check_item')
+export class CheckItem {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  boards_id: number;
+  checklist_id: number;
 
   @Column()
   lists_order: number;
 
   @Column()
-  title: string;
+  content: string;
+
+  @Column()
+  is_done: boolean;
 
   @CreateDateColumn()
   created_at: string;
@@ -31,13 +33,10 @@ export class List {
   @UpdateDateColumn()
   updated_at: string;
 
-  @OneToMany(() => Card, (card) => card.list)
-  card: Card[];
-
-  @ManyToOne(() => Board, (board) => board.list, {
+  @ManyToOne(() => CheckList, (checklist) => checklist.check_item, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn([{ name: 'boards_id', referencedColumnName: 'id' }])
-  board: Board;
+  @JoinColumn([{ name: 'checklist_id', referencedColumnName: 'id' }])
+  checklist: CheckList;
 }

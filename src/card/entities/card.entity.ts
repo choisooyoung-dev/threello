@@ -14,6 +14,7 @@ import { Color } from 'src/common/types/color.type';
 import { CardWorker } from './card.worker.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { DeadlineStatus } from '../types/deadline.status.type';
+import { CheckList } from '../../checklist/entities/checklist.entity';
 
 @Entity('cards')
 export class Card {
@@ -63,6 +64,9 @@ export class Card {
 
   @OneToMany(() => CardWorker, (cardWorker) => cardWorker.card)
   cardWorkers: CardWorker[];
+
+  @OneToMany(() => CheckList, (checklist) => checklist.card)
+  checklist: CheckList[];
 
   @ManyToOne(() => List, (list) => list.card, {
     onDelete: 'CASCADE',

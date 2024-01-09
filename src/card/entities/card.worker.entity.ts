@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Card } from './card.entity';
 import { IsNumber } from 'class-validator';
 
-@Entity('cardWorkers')
+@Entity('card_workers')
 export class CardWorker {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;

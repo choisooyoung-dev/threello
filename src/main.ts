@@ -26,7 +26,7 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      forbidNonWhitelisted: false,
+      forbidNonWhitelisted: false, // 입구컷
     }),
   );
   await app.listen(port);

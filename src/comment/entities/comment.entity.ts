@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -34,8 +35,10 @@ export class Comment {
   updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
+  @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   user: User;
 
   @ManyToOne(() => Card, (card) => card.comments, { onDelete: 'CASCADE' })
+  @JoinColumn([{ name: 'card_id', referencedColumnName: 'id' }])
   card: Card;
 }

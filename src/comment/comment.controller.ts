@@ -12,21 +12,25 @@ import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { BoardService } from 'src/board/board.service';
 
 @ApiTags('comment')
-@Controller('/:card_id/comments')
+@Controller(':board_id/comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(
+    private readonly commentService: CommentService,
+    private readonly boardService: BoardService,
+  ) {}
 
   // 댓글 생성
   @Post()
   async createComment(
-    @Param('card_id') card_id: number,
+    @Param('board_id') board_id: number,
     @Body() createCommentDto: CreateCommentDto,
   ) {
     const comment = await this.commentService.createComment(
       createCommentDto,
-      card_id,
+      board_id,
     );
     return {
       statusCode: HttpStatus.CREATED,
@@ -37,8 +41,8 @@ export class CommentController {
 
   // 댓글 조회
   @Get()
-  async getComments(@Param('card_id') card_id: number) {
-    const comments = await this.commentService.getComments(card_id);
+  async getComments(@Param('board_id') board_id: number) {
+    const comments = await this.commentService.getComments(board_id);
     return {
       statusCode: HttpStatus.OK,
       message: '전체 댓글 조회 성공.',
@@ -48,8 +52,11 @@ export class CommentController {
 
   // 특정 댓글 가져오기
   @Get(':id')
-  async getComment(@Param('card_id') card_id: number, @Param('id') id: string) {
-    const comment = await this.commentService.getComment(+id, card_id);
+  async getComment(
+    @Param('board_id') board_id: number,
+    @Param('id') id: string,
+  ) {
+    const comment = await this.commentService.getComment(+id, board_id);
     return {
       statusCode: HttpStatus.OK,
       message: '댓글 조회 완료.',
@@ -60,14 +67,14 @@ export class CommentController {
   // 댓글 수정
   @Patch(':id')
   async updateComment(
-    @Param('card_id') card_id: number,
+    @Param('board_id') board_id: number,
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
   ) {
     const updateComment = await this.commentService.updateComment(
       +id,
       updateCommentDto,
-      card_id,
+      board_id,
     );
     return {
       statusCode: HttpStatus.OK,
@@ -78,8 +85,8 @@ export class CommentController {
 
   // 댓글 삭제
   @Delete(':id')
-  removeComment(@Param('card_id') card_id: number, @Param('id') id: string) {
-    const deleteComment = this.commentService.removeComment(+id, card_id);
+  removeComment(@Param('board_id') board_id: number, @Param('id') id: string) {
+    const deleteComment = this.commentService.removeComment(+id, board_id);
     return {
       statusCode: HttpStatus.OK,
       message: '댓글 삭제 완료.',

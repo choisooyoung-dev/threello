@@ -11,12 +11,8 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-<<<<<<< HEAD
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-=======
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
->>>>>>> 959359f07429aed6282a172ca52248b0ae338b82
+
 
 @ApiTags('card')
 @ApiBearerAuth()
@@ -29,10 +25,7 @@ export class CardController {
     summary: '카드 생성 API',
     description: '카드를 생성합니다.',
   })
-<<<<<<< HEAD
   @ApiBody({ type: CreateCardDto })
-=======
->>>>>>> 959359f07429aed6282a172ca52248b0ae338b82
   @Post('/create')
   async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
@@ -60,10 +53,7 @@ export class CardController {
     summary: '카드 내 작업자 할당 API',
     description: '카드 내에 해당 작업을 담당하는 작업자를 할당합니다.',
   })
-<<<<<<< HEAD
   @ApiBody({ type: CreateWorkerDto })
-=======
->>>>>>> 959359f07429aed6282a172ca52248b0ae338b82
   @Post(':id/worker/create')
   async createWorker(
     @Param('id') cardId: string,

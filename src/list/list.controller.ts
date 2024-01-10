@@ -7,16 +7,25 @@ import {
   Param,
   Delete,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { ListService } from './list.service';
 import { BoardService } from '../board/board.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ResponseInterface } from 'src/response/interface/response.interface';
+import { AuthGuard } from '@nestjs/passport';
+import { BoardMemberGuard } from '../auth/guard/board-member.guard';
 
 @ApiTags('list')
-@Controller('list')
+@Controller('/:boardId/list')
 export class ListController {
   // 하단에 board_users 서비스 권한이 추가되어야함
   constructor(
@@ -30,6 +39,7 @@ export class ListController {
   })
   @ApiBearerAuth()
   @ApiBody({ type: CreateListDto })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Post()
   @ApiResponse({
     status: 201,
@@ -50,6 +60,7 @@ export class ListController {
     description: '보드 ID를 통해 특정 보드의 모든 리스트를 조회합니다.',
   })
   @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get('all/:boards_id')
   async findAll(@Param('boards_id') boards_id: number) {
     return await this.listService.findAll(boards_id);
@@ -60,6 +71,7 @@ export class ListController {
     description: '리스트 ID를 통해 특정 리스트를 조회합니다.',
   })
   @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get(':listId')
   async findOne(@Param('listId') id: number) {
     return await this.listService.findOne(+id);
@@ -70,6 +82,7 @@ export class ListController {
     description: '리스트를 수정합니다.',
   })
   @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':listId')
   async update(
     @Param('listId') id: number,
@@ -83,6 +96,7 @@ export class ListController {
     description: '리스트를 이동합니다.',
   })
   @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':listId/:to')
   async moveListBlock(@Param('listId') id: number, @Param('to') to: number) {
     return await this.listService.moveListBlock(+id, to);
@@ -93,6 +107,7 @@ export class ListController {
     description: '리스트를 삭제합니다.',
   })
   @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':listId')
   async remove(@Param('listId') id: string) {
     return await this.listService.remove(+id);

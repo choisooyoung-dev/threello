@@ -1,9 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
 import { CreateListDto } from './create-list.dto';
 
-export class UpdateListDto extends PartialType(CreateListDto) {
-  @IsString()
-  @IsNotEmpty({ message: '타이틀을 입력해주세요.' })
-  title: string;
-}
+export class UpdateListDto extends PickType(CreateListDto, ['title']) {}

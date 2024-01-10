@@ -14,7 +14,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('lists')
 export class List {
-  @ApiProperty({ description: '기본아이디', example: '1' })
   @PrimaryGeneratedColumn()
   id: number;
 

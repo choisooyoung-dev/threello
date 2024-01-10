@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -44,7 +43,6 @@ export class BoardService {
     return board;
   }
 
-  // 보드 수정
   async updateBoard(
     id: number,
     updateBoardDto: CreateBoardDto,
@@ -66,72 +64,76 @@ export class BoardService {
       throw new NotFoundException(` 해당 보드를 찾을 수 없습니다.`);
     }
   }
-  //출력되는지 테스트 할 것
-  //보드 내에서 초대가 가능하게
-  //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
-  //param 보드ID받고 body 상대 이메일 받고 그냥 추가.
-  //이미 초대되어있거나 멤버라면?
-  async invite(boardId: number, email: string, user: User) {
-    let board: Board;
-    let boardMember: BoardMember;
-    let result: BoardMember;
 
-    //해당 보드가 있는가.
+  async invite(boardId: number, email: string, user: User) {
     try {
-      board = await this.boardRepository.findOneBy({ id: boardId });
+      const board: Board = await this.getBoardById(boardId);
+      this.checkBoardExistence(board);
+      await this.checkUserIsHost(board, user);
+      const invitedUser: User = await this.getUserByEmail(email);
+      this.checkUserExistence(invitedUser);
+      await this.checkUserNotInBoard(invitedUser, board);
+      const result = await this.addUserToBoard(invitedUser, board);
+      console.log(result.created_at);
     } catch (error) {
-      throw new InternalServerErrorException('Internal server error');
+      throw error;
     }
+    return { code: 201, message: 'you successfully invite user' };
+  }
+
+  private checkBoardExistence(board: Board): void {
     if (!board) {
-      throw new NotFoundException(`id with ${boardId} board isn't exit`);
+      throw new NotFoundException(`id with ${board.id} board isn't exist`);
     }
-    //해당 보드의 호스트인가.
-    try {
-      result = await this.boardMemberRepository.findOne({
-        where: { board, user },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('internal server error');
-    }
+  }
+
+  private async checkUserIsHost(
+    board: Board,
+    user: User,
+  ): Promise<BoardMember> {
+    const result = await this.boardMemberRepository.findOne({
+      where: { board, user },
+    });
+
     if (!result || result.is_host == false) {
-      throw new UnauthorizedException("you isn't host in the board");
+      throw new UnauthorizedException("you aren't host in the board");
     }
-    //초대하고자 하는 유저가 있는가.
-    let invitedUser: User;
-    try {
-      invitedUser = await this.userRepository.findOneBy({ email });
-    } catch (error) {
-      throw new InternalServerErrorException('Internal server error');
+
+    return result;
+  }
+
+  private async getUserByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOneBy({ email });
+  }
+
+  private checkUserExistence(user: User): void {
+    if (!user) {
+      throw new NotFoundException(`user doesn't exist`);
     }
-    if (!invitedUser) {
-      throw new NotFoundException(`user with ${email} isn't exit`);
-    }
-    //해당 보드에 이미 있는 유저인지 확인
-    try {
-      boardMember = await this.boardMemberRepository.findOneBy({
-        user: invitedUser,
-        board,
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Internal server error');
-    }
+  }
+
+  private async checkUserNotInBoard(user: User, board: Board): Promise<void> {
+    const boardMember = await this.boardMemberRepository.findOneBy({
+      user,
+      board,
+    });
+
     if (boardMember) {
       throw new ConflictException(
         'the user you invite is already in the board',
       );
     }
-    //저장
-    try {
-      boardMember = this.boardMemberRepository.create({
-        is_accept: false,
-        is_host: false,
-        user: invitedUser,
-        board,
-      });
-      await this.boardMemberRepository.save(boardMember);
-    } catch (error) {
-      throw new InternalServerErrorException('Internal server error');
-    }
-    return await { code: 201, message: 'you successfully invite user' };
+  }
+
+  private async addUserToBoard(user: User, board: Board): Promise<BoardMember> {
+    const boardMember = this.boardMemberRepository.create({
+      is_accept: false,
+      is_host: false,
+      user,
+      board,
+    });
+
+    await this.boardMemberRepository.save(boardMember);
+    return boardMember;
   }
 }

@@ -35,7 +35,7 @@ export class CardService {
     if (!dueTimeValue) dueTimeValue = '00:00';
 
     const dueDateResult = new Date(`${dueDateValue} ${dueTimeValue}`);
-    // console.log('dueDateResult: ', dueDateResult);
+    console.log('dueDateResult: ', dueDateResult);
 
     const nowDate = new Date();
     // console.log('nowDate ===> ', nowDate);

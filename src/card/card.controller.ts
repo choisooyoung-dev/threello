@@ -19,7 +19,7 @@ import { Card } from './entities/card.entity';
 import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
 
-@UseGuards(AuthGuard('jwt'), BoardMemberGuard)
+// @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
 @ApiTags('card')
 @Controller('/:boardId/card')
 export class CardController {

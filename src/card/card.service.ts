@@ -214,7 +214,7 @@ export class CardService {
 
   // 리스트간 카드 이동
   // 1리스트에서 2리스트로 옮겨가는 과정
-  // 1리스스 해당 카드를 불러와서 컨텐츠를 미리 변수화
+
   // 1리스트에 해당 카드를 삭제
   // 2리스트에서 컨텐츠 내용과 똑같은 카드하나를 생성
   // 지우고 다시만들기 = 이동
@@ -222,19 +222,30 @@ export class CardService {
   // 그거를 cardTo로 다시 이동메서드 수행
   async moveCardBlockBeteweenList(
     cardId: number,
+    listId: number,
     listTo: number,
     cardTo: number,
-    cardCount: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       // 옮기기 전 list_id 값의 속한 카드들 정렬
+      const currentListInCards = await this.getAllCards(listId);
+      console.log('currentListInCards: ', currentListInCards);
+
+      // // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
+      await this.moveCardBlock(cardId, currentListInCards.length);
+
+      // 처음 리스트에 해당 카드를 불러와서 컨텐츠를 미리 변수화
       const card = await this.cardRepository.findOneBy({ id: cardId });
       if (!card) throw new NotFoundException('해당하는 카드가 없습니다.');
       const { title, content, color, due_date, deadline_status } = card;
       await this.remove(cardId);
+
+      console.log(card);
+      // const dueDateValue = card.due_date
+
       const createCardDto = {
         title,
         content,
@@ -242,15 +253,15 @@ export class CardService {
         due_date,
         deadline_status,
       };
-      // await this.create( listTo, createCardDto, );
-
-      // // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
-      // await this.moveCardBlock(cardId);
+      await this.cardRepository.create(createCardDto);
 
       // 리스트 값 바꾸기
       await this.cardRepository.update(cardId, {
         list: { id: listTo },
       });
+
+      // 옮긴 후 리스트 카드 목록 불러오기
+      const movedListInCards = await this.getAllCards(listTo);
 
       await queryRunner.commitTransaction();
       return this.getCard(cardId);

@@ -34,16 +34,13 @@ export class CardService {
     // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
 
-    const dueDateResult = new Date(`${dueDateValue} ${dueTimeValue}`);
-    console.log('dueDateResult: ', dueDateResult);
-
     const newCard = await this.cardRepository.save({
       list: { id: list_id },
       title,
       content,
       card_order: cardOrder,
       color,
-      due_date: dueDateResult,
+      due_date: `${dueDateValue} ${dueTimeValue}`,
     });
 
     return this.getCard(newCard.id);
@@ -59,7 +56,7 @@ export class CardService {
   async getCard(id: number) {
     const getCard = await this.cardRepository.findOneBy({ id });
 
-    const dueDate = getCard.due_date;
+    let dueDate = getCard.due_date;
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -73,7 +70,9 @@ export class CardService {
       const nowDate = new Date();
       // console.log('nowDate ===> ', nowDate);
 
-      const timeDifference = dueDate.getTime() - nowDate.getTime();
+      const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
+
+      const timeDifference = convertDueDate - nowDate.getTime();
 
       const hoursDifference = timeDifference / (1000 * 60 * 60);
 

@@ -11,9 +11,9 @@ import {
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('comment')
 @Controller('/:boardId/:card_id/comments')
@@ -21,7 +21,12 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   // 댓글 생성
+  @ApiOperation({
+    summary: '댓글 생성 API',
+    description: '댓글을 생성 합니다.',
+  })
   @Post()
+  @ApiBody({ type: CreateCommentDto })
   async createComment(
     @Param('boardId') boardId: number,
     @Param('card_id') card_id: number,
@@ -43,6 +48,10 @@ export class CommentController {
   }
 
   // 댓글 조회
+  @ApiOperation({
+    summary: '전체 댓글 조회 API',
+    description: '댓글을 모두 조회합니다.',
+  })
   @Get()
   async getComments(
     @Param('boardId') boardId: number,
@@ -57,6 +66,10 @@ export class CommentController {
   }
 
   // 특정 댓글 가져오기
+  @ApiOperation({
+    summary: '특정 댓글 조회 API',
+    description: '특정 댓글을 조회합니다.',
+  })
   @Get(':id')
   async getComment(
     @Param('boardId') boardId: number,
@@ -72,7 +85,12 @@ export class CommentController {
   }
 
   // 댓글 수정
+  @ApiOperation({
+    summary: '댓글 수정 API',
+    description: '댓글을 수정합니다.',
+  })
   @Patch(':id')
+  @ApiBody({ type: UpdateCommentDto })
   async updateComment(
     @Param('boardId') boardId: number,
     @Param('card_id') card_id: number,
@@ -95,6 +113,10 @@ export class CommentController {
   }
 
   // 댓글 삭제
+  @ApiOperation({
+    summary: '댓글 삭제 API',
+    description: '댓글을 삭제합니다.',
+  })
   @Delete(':id')
   removeComment(
     @Param('boardId') boardId: number,

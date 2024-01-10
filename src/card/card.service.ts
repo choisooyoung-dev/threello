@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { DeadlineStatus } from './types/deadline.status.type';
 import { Card } from 'src/card/entities/card.entity';
 
 @Injectable()
@@ -56,7 +55,8 @@ export class CardService {
   async getCard(id: number) {
     const getCard = await this.cardRepository.findOneBy({ id });
 
-    let dueDate = getCard.due_date;
+    const dueDate = getCard.due_date;
+    console.log('dueDate ===> ', dueDate);
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -68,13 +68,11 @@ export class CardService {
     // 마감기한 상태가 uncomplete면?
     if (deadlineStatus === 0) {
       const nowDate = new Date();
-      // console.log('nowDate ===> ', nowDate);
 
-      const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
+      const timeDifference = dueDate.getTime() - nowDate.getTime();
 
-      const timeDifference = convertDueDate - nowDate.getTime();
-
-      const hoursDifference = timeDifference / (1000 * 60 * 60);
+      const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
+      console.log('hoursDifference: ', hoursDifference);
 
       let deadlineStatusWithTime: string = '';
 
@@ -218,51 +216,31 @@ export class CardService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const moveCard = await this.cardRepository.findOne({
-        where: { id: cardId },
-      });
-
-      console.log(moveCard);
-      // const moveCardListId = moveCard.listId;
-
       // 옮기기 전 list_id 값의 속한 카드들 정렬
       const existingCard = await this.cardRepository.find({
         where: { list: { id: listId } },
         select: ['list'],
       });
 
-      console.log('existingCard: ', existingCard);
+      console.log(existingCard.length);
 
       if (!existingCard)
         throw new NotFoundException('해당하는 카드가 없습니다.');
 
-      const existingCardOrder = existingCard[0].card_order;
-      console.log('existingCardOrder: ', existingCardOrder);
+      const moveCard = await this.cardRepository.findOne({
+        where: { id: cardId },
+      });
 
-      // 옮겨질 카드를 맨 뒤에 순서로 보낸 후 옮겨질 카드의 리스트 아이디 값을 바꾼다.
+      // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
+      await this.moveCardBlock(cardId, existingCard.length);
 
-      const cardCount = existingCard.length;
-      // await this.moveCardBlock(cardId, cardCount);
-
-      const changeListId = await this.cardRepository.update(cardId, {
+      // 리스트 값 바꾸기
+      await this.cardRepository.update(cardId, {
         list: { id: listTo },
       });
 
-      // 바뀐 리스트의 Card 불러오기
-      const changeListCard = await this.cardRepository.find({
-        where: { list: { id: listTo } },
-      });
-
-      const changeCardLength = changeListCard.length;
-
-      if (cardTo >= changeCardLength) {
-        cardTo = changeCardLength;
-
-        await this.moveCardBlock(cardId, cardTo);
-      }
-      await this.moveCardBlock(cardId, cardTo);
       await queryRunner.commitTransaction();
-      //return changeCardOrder;
+      return this.getCard(cardId);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       return { status: 404, message: error.message };
@@ -270,6 +248,16 @@ export class CardService {
       // 사용이 끝난 후에는 항상 queryRunner를 해제
       await queryRunner.release();
     }
+  }
+
+  async count(list_id: number) {
+    const cardCount = await this.cardRepository
+      .createQueryBuilder('card')
+      .where({ list_id: list_id })
+      .select('COUNT(card.card_order)', 'total_card_count')
+      .getRawOne();
+
+    return await cardCount;
   }
 
   // 작업자 할당

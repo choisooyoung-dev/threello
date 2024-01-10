@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Card } from './card.entity';
 import { IsNumber } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('card_workers')
 export class CardWorker {
@@ -10,6 +11,7 @@ export class CardWorker {
 
   @IsNumber()
   @Column()
+  @ApiProperty({ description: '유저 아이디', example: '1' })
   user_id: number;
 
   // 코드 수정한 부분

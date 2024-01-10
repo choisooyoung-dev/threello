@@ -1,4 +1,4 @@
-@host = http://localhost:3000/api
+@host = http://localhost:3000/api/1
 
 ###
 # GET ALL CARDS
@@ -6,7 +6,11 @@ GET {{host}}/card
 
 ###
 # GET CARD
+<<<<<<< HEAD
+GET {{host}}/card/5
+=======
 GET {{host}}/card/9
+>>>>>>> 955b2bf8417e364444cdea2464b97280dfb5960b
 
 ###
 # CREATE CARD
@@ -14,7 +18,7 @@ POST {{host}}/card/create
 Content-Type: application/json
 
 {
-    "list_id":1, 
+    "list_id":3, 
     "title": "dummy card",
     "content": "dummy card's content",
     "dueDateValue": "2024-01-10",
@@ -23,24 +27,29 @@ Content-Type: application/json
 
 ### 
 # UPDATE CARD
-PATCH  {{host}}/card/9
+PATCH  {{host}}/card/4
 Content-Type: application/json
 
 {
-	"title": "first card!!!"
+	"deadline_status": 1
 }
 
 ### 
 # UPDATE CARD ORDER (현재 카드아이디 값/옮기고 싶은 위치의 카드 order 값)
-PATCH {{host}}/card/9/13
+PATCH {{host}}/card/4/1
 
 ### 
 # UPDATE CARD LIST ORDER (현재 카드아이디 값/옮기고 싶은 위치의 list 아이디 값/옮기고 싶은 위치의 카드 order 값)
+<<<<<<< HEAD
+PATCH {{host}}/card/4/1/2/1
+ 
+=======
 PATCH {{host}}/card/3/1/2/1
 
+>>>>>>> 955b2bf8417e364444cdea2464b97280dfb5960b
 ### 
 # DELETE CARD
-DELETE {{host}}/card/delete/17
+DELETE {{host}}/card/delete/4
   
 ### 
 #CREATE WORKER
@@ -58,3 +67,4 @@ Content-Type: application/json
 # DELETE WORKER
 DELETE {{host}}/card/2/worker/remove/1
 
+ 

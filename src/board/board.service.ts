@@ -50,7 +50,7 @@ export class BoardService {
   async getBoardById(id: number): Promise<Board> {
     const board = await this.boardRepository.findOneBy({ id });
     if (!board) {
-      throw new NotFoundException(`해당 보드를 찾을 수 없습니다.`);
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
     return board;
   }
@@ -75,7 +75,7 @@ export class BoardService {
     }
 
     if (!board) {
-      throw new NotFoundException(`해당 보드를 찾을 수 없습니다.`);
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
 
     Object.assign(board, updateBoardDto);
@@ -103,7 +103,7 @@ export class BoardService {
 
     const result = await this.boardRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(` 해당 보드를 찾을 수 없습니다.`);
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
   }
   //출력되는지 테스트 할 것
@@ -111,11 +111,21 @@ export class BoardService {
   //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
   //param 보드ID받고 body 상대 이메일 받고 그냥 추가.
   //이미 초대되어있거나 멤버라면?
-  async invite(boardId: number, email: string, user: User) {
+  async invite(boardId: number, userId: number, email: string, user: User) {
     let board: Board;
     let boardMember: BoardMember;
     try {
-      board = await this.boardRepository.findOneBy({ id: boardId });
+      board = await this.boardRepository.findOne({
+        where: { id: boardId },
+        relations: ['boardMembers'],
+      });
+
+      const isUserHost = board.boardMembers.some(
+        (member) => member.user.id === userId && member.is_host,
+      );
+      if (!isUserHost) {
+        throw new UnauthorizedException('초대 권한이 없습니다.');
+      }
     } catch (error) {
       throw new InternalServerErrorException('Internal server error');
     }

@@ -47,7 +47,7 @@ export class Card {
   due_date?: Date;
 
   @IsOptional()
-  @Column({ type: 'enum', enum: DeadlineStatus, nullable: true })
+  @Column({ type: 'enum', enum: DeadlineStatus, default: 0 })
   deadline_status?: DeadlineStatus;
 
   @CreateDateColumn()

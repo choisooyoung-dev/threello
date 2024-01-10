@@ -16,6 +16,9 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { Card } from './entities/card.entity';
+import { CardWorker } from './entities/card.worker.entity';
+import { DeleteResult } from 'typeorm';
 
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('4. card')
@@ -31,6 +34,7 @@ export class CardController {
   })
   @ApiBody({ type: CreateCardDto })
   @Post('/create')
+  @ApiResponse({ type: Card })
   async create(@GetUser() user: User, @Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
       createCardDto.list_id,
@@ -46,6 +50,7 @@ export class CardController {
     summary: '카드 삭제 API',
     description: '카드를 삭제합니다.',
   })
+  @ApiResponse({ type: Card, isArray: true })
   @Delete('/delete/:id')
   async remove(@Param('id') id: string) {
     const cards = await this.cardService.remove(+id);
@@ -58,6 +63,7 @@ export class CardController {
     description: '카드 내에 해당 작업을 담당하는 작업자를 할당합니다.',
   })
   @ApiBody({ type: CreateWorkerDto })
+  @ApiResponse({ type: CardWorker, isArray: true })
   @Post(':id/worker/create')
   async createWorker(
     @Param('id') cardId: string,
@@ -73,6 +79,7 @@ export class CardController {
     description: '카드 내에 해당 작업을 담당하는 작업자를 삭제합니다.',
   })
   @Delete(':id/worker/remove/:userId')
+  @ApiResponse({ type: DeleteResult })
   async removeWorker(
     @Param('id') cardId: string,
     @Param('userId') userId: string,
@@ -80,6 +87,7 @@ export class CardController {
     const data = await this.cardService.removeWorker(+cardId, +userId);
     return data;
   }
+
 
   // // 모든 카드 가져오기
   // @ApiOperation({
@@ -92,12 +100,14 @@ export class CardController {
   //   return cards;
   // }
 
+
   // 특정 카드 가져오기
   @ApiOperation({
     summary: '특정 카드 조회 API',
     description: '카드 ID를 통해 특정 카드를 조회합니다.',
   })
   @Get(':id')
+  @ApiResponse({ type: Card })
   async getCard(@Param('id') id: string) {
     const card = await this.cardService.getCard(+id);
     return card;
@@ -108,6 +118,7 @@ export class CardController {
     summary: '카드 수정 API',
     description: '카드를 수정합니다.',
   })
+  @ApiResponse({ type: Card })
   @Patch(':id')
   @ApiBody({ type: UpdateCardDto })
   async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
@@ -120,6 +131,7 @@ export class CardController {
     summary: '카드 순서 변경 API',
     description: '카드의 순서를 변경합니다.',
   })
+  @ApiResponse({ type: Card })
   @Patch(':cardId/:to')
   async moveCardBlock(
     @Param('cardId') cardId: string,
@@ -134,6 +146,7 @@ export class CardController {
     summary: '카드 리스트간 순서 변경 API',
     description: '카드 리스트간 순서를 변경합니다.',
   })
+  @ApiResponse({ type: Card })
   @Patch(':cardId/:listId/:listTo/:cardTo')
   async moveCardBetweenList(
     @Param('cardId') cardId: string,

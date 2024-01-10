@@ -11,10 +11,11 @@ import {
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BoardService } from 'src/board/board.service';
-
-@ApiTags('5. comment')
+import { Comment } from './entities/comment.entity';
+//TODO: 다시봐야함.
+@ApiTags('comment')
 @Controller(':board_id/comments')
 export class CommentController {
   constructor(
@@ -29,6 +30,15 @@ export class CommentController {
   })
   @Post()
   @ApiBody({ type: CreateCommentDto })
+  @ApiResponse({
+    type: Comment,
+    schema: {
+      properties: {
+        statusCode: { type: 'number', example: 200 },
+        message: { type: 'string', example: '댓글 작성 완료' },
+      },
+    },
+  })
   async createComment(
     @Param('board_id') board_id: number,
     @Body() createCommentDto: CreateCommentDto,
@@ -45,6 +55,15 @@ export class CommentController {
   }
 
   // 댓글 조회
+  @ApiResponse({
+    type: Comment,
+    schema: {
+      properties: {
+        statusCode: { type: 'number', example: 200 },
+        message: { type: 'string', example: '댓글 작성 완료' },
+      },
+    },
+  })
   @ApiOperation({
     summary: '전체 댓글 조회 API',
     description: '댓글을 모두 조회합니다.',
@@ -63,6 +82,15 @@ export class CommentController {
   @ApiOperation({
     summary: '특정 댓글 조회 API',
     description: '특정 댓글을 조회합니다.',
+  })
+  @ApiResponse({
+    type: Comment,
+    schema: {
+      properties: {
+        statusCode: { type: 'number', example: 200 },
+        message: { type: 'string', example: '댓글 작성 완료' },
+      },
+    },
   })
   @Get(':id')
   async getComment(
@@ -83,6 +111,15 @@ export class CommentController {
     description: '댓글을 수정합니다.',
   })
   @Patch(':id')
+  @ApiResponse({
+    type: Comment,
+    schema: {
+      properties: {
+        statusCode: { type: 'number', example: 200 },
+        message: { type: 'string', example: '댓글 작성 완료' },
+      },
+    },
+  })
   @ApiBody({ type: UpdateCommentDto })
   async updateComment(
     @Param('board_id') board_id: number,
@@ -105,6 +142,16 @@ export class CommentController {
   @ApiOperation({
     summary: '댓글 삭제 API',
     description: '댓글을 삭제합니다.',
+  })
+  @ApiResponse({
+    type: Comment,
+    isArray: true,
+    schema: {
+      properties: {
+        statusCode: { type: 'number', example: 200 },
+        message: { type: 'string', example: '댓글 작성 완료' },
+      },
+    },
   })
   @Delete(':id')
   removeComment(@Param('board_id') board_id: number, @Param('id') id: string) {

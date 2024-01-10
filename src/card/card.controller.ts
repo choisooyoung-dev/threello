@@ -56,9 +56,9 @@ export class CardController {
   })
   @ApiResponse({ type: Card, isArray: true })
   @ApiBearerAuth()
-  @Delete('/delete/:id')
-  async remove(@Param('id') id: string) {
-    const cards = await this.cardService.remove(+id);
+  @Delete('/delete/:cardId')
+  async remove(@Param('cardId') cardId: string) {
+    const cards = await this.cardService.remove(+cardId);
     return cards;
   }
 
@@ -83,10 +83,10 @@ export class CardController {
   @ApiBody({ type: CreateWorkerDto })
   @ApiResponse({ type: CardWorker, isArray: true })
   @ApiBearerAuth()
-  @Post(':id/worker/create')
+  @Post(':cardId/worker/create')
   async createWorker(
     @Param('boardId') boardId: string,
-    @Param('id') cardId: string,
+    @Param('cardId') cardId: string,
     @Body() createWorkerDto: CreateWorkerDto,
   ) {
     const data = await this.cardService.createWorker(
@@ -103,10 +103,10 @@ export class CardController {
     description: '카드 내에 해당 작업을 담당하는 작업자를 삭제합니다.',
   })
   @ApiBearerAuth()
-  @Delete(':id/worker/remove/:userId')
+  @Delete(':cardId/worker/remove/:userId')
   @ApiResponse({ type: DeleteResult })
   async removeWorker(
-    @Param('id') cardId: string,
+    @Param('cardId') cardId: string,
     @Param('userId') userId: string,
   ) {
     const data = await this.cardService.removeWorker(+cardId, +userId);
@@ -130,10 +130,10 @@ export class CardController {
     summary: '특정 카드 조회 API',
     description: '카드 ID를 통해 특정 카드를 조회합니다.',
   })
-  @Get(':id')
+  @Get(':cardId')
   @ApiResponse({ type: Card })
-  async getCard(@Param('id') id: string) {
-    const card = await this.cardService.getCard(+id);
+  async getCard(@Param('cardId') cardId: string) {
+    const card = await this.cardService.getCard(+cardId);
     return card;
   }
 
@@ -143,10 +143,13 @@ export class CardController {
     description: '카드를 수정합니다.',
   })
   @ApiResponse({ type: Card })
-  @Patch(':id')
+  @Patch(':cardId')
   @ApiBody({ type: UpdateCardDto })
-  async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
-    const updatedCard = await this.cardService.update(+id, updateCardDto);
+  async update(
+    @Param('cardId') cardId: string,
+    @Body() updateCardDto: UpdateCardDto,
+  ) {
+    const updatedCard = await this.cardService.update(+cardId, updateCardDto);
     return updatedCard;
   }
 

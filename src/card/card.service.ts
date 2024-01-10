@@ -27,12 +27,8 @@ export class CardService {
     dueTimeValue: string,
   ) {
     const { title, color, content } = createCardDto;
-
     const getAllCards = await this.getAllCards(list_id);
-    // console.log('getAllCards: ', getAllCards);
-
     const newCardOrder = getAllCards.length + 1;
-    // console.log('newCardOrder: ', newCardOrder);
 
     // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
@@ -60,9 +56,7 @@ export class CardService {
   // 특정 카드 조회, 마감기한에 따른 상태 조회
   async getCard(id: number) {
     const getCard = await this.cardRepository.findOneBy({ id });
-
     const dueDate = getCard.due_date;
-    console.log('dueDate ===> ', dueDate);
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -118,14 +112,10 @@ export class CardService {
         throw new NotFoundException('해당하는 카드가 없습니다.');
 
       const existingCardOrder = existingCard[0].card_order;
-      console.log('existingCardOrder: ', existingCardOrder);
-
-      //const listId = existingCard[0].listId;
 
       const countArr = await this.cardRepository.find();
-      console.log('countArr ===> ', countArr);
+
       const count = countArr.length;
-      console.log('count ===> ', count);
 
       if (count === existingCardOrder) {
         await this.cardRepository.delete({ id });
@@ -193,8 +183,6 @@ export class CardService {
         })
         .getMany();
 
-      console.log(currentCards);
-
       const direction = to > cardBlock[0].card_order ? -1 : 1;
 
       for (const card of currentCards) {
@@ -217,13 +205,6 @@ export class CardService {
   }
 
   // 리스트간 카드 이동
-  // ---> 일단 카드가 다른 리스트로 옮겨갔을때 맨 마지막으로 가도록 해놨습니다
-  // 1리스트에서 2리스트로 옮겨가는 과정
-
-  // 2리스트에서 컨텐츠 내용과 똑같은 카드하나를 생성
-  // 지우고 다시만들기 = 이동
-  // 2리스트에서 생성이 잘됐으면 맨 뒤에 있을거임
-  // 그거를 cardTo로 다시 이동메서드 수행
   async moveCardBlockBeteweenList(
     cardId: number,
     listId: number,
@@ -236,34 +217,9 @@ export class CardService {
     try {
       // 옮기기 전 list_id 값의 속한 카드들 정렬
       const currentListInCards = await this.getAllCards(listId);
-      console.log('currentListInCards: ', currentListInCards);
 
       // // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
       await this.moveCardBlock(cardId, currentListInCards.length);
-
-      // 처음 리스트에 해당 카드를 불러와서 컨텐츠를 미리 변수화
-      const card = await this.cardRepository.findOneBy({ id: cardId });
-
-      if (!card) throw new NotFoundException('해당하는 카드가 없습니다.');
-      const { title, content, color, due_date, deadline_status, card_order } =
-        card;
-      console.log('due_date: ', due_date);
-      // 1리스트에 해당 카드를 삭제
-      // await this.remove(cardId);
-
-      console.log(card);
-      const dueDateValue = card.due_date;
-      console.log('dueDateValue: ', dueDateValue);
-
-      // await this.cardRepository.save({
-      //   title,
-      //   content,
-      //   color,
-      //   due_date,
-      //   deadline_status,
-      //   list: { id: listTo },
-      //   card_order,
-      // });
 
       // 리스트 값 바꾸기
       await this.cardRepository.update(cardId, {
@@ -271,12 +227,7 @@ export class CardService {
       });
 
       // 옮긴 후 리스트 카드 목록 불러오기
-      const movedListInCards = await this.getAllCards(listTo);
-      console.log('movedListInCards: ', movedListInCards);
-
-      // await this.cardRepository.update(cardId, {
-      //   card_order: movedListInCards.length,
-      // });
+      await this.getAllCards(listTo);
 
       await this.moveCardBlock(cardId, cardTo);
 
@@ -326,10 +277,7 @@ export class CardService {
       getWorkers.forEach((worker) => {
         invitedWorkerArr.push(worker.userId);
       });
-
-      console.log('invitedWorkerArr: ', invitedWorkerArr);
       const { userIds } = createWorkerDto;
-      console.log('userIds: ', userIds);
 
       for (const user of userIds) {
         // 해당 유저가 멤버인지

@@ -11,7 +11,7 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { List } from 'src/list/entities/list.entity';
 
 @ApiTags('card')
@@ -20,6 +20,10 @@ export class CardController {
   constructor(private readonly cardService: CardService) {}
 
   // 카드 생성
+  @ApiOperation({
+    summary: '카드 생성 API',
+    description: '카드를 생성합니다.',
+  })
   @Post('/create')
   async create(
     @Body('list_id') list_id: number,
@@ -37,6 +41,10 @@ export class CardController {
   }
 
   // 카드 삭제
+  @ApiOperation({
+    summary: '카드 삭제 API',
+    description: '카드를 삭제합니다.',
+  })
   @Delete('/delete/:id')
   async remove(@Param('id') id: string) {
     const cards = await this.cardService.remove(+id);
@@ -44,6 +52,10 @@ export class CardController {
   }
 
   // 카드 내 작업자 할당
+  @ApiOperation({
+    summary: '카드 내 작업자 할당 API',
+    description: '카드 내에 해당 작업을 담당하는 작업자를 할당합니다.',
+  })
   @Post(':id/worker/create')
   async createWorker(
     @Param('id') cardId: string,
@@ -54,6 +66,10 @@ export class CardController {
   }
 
   // 카드 내 작업자 삭제
+  @ApiOperation({
+    summary: '카드 내 작업자 삭제 API',
+    description: '카드 내에 해당 작업을 담당하는 작업자를 삭제합니다.',
+  })
   @Delete(':id/worker/remove/:userId')
   async removeWorker(
     @Param('id') cardId: string,
@@ -64,6 +80,10 @@ export class CardController {
   }
 
   // 모든 카드 가져오기
+  @ApiOperation({
+    summary: '모든 카드 조회 API',
+    description: '모든 카드를 조회합니다.',
+  })
   @Get()
   async getAllCards() {
     const cards = await this.cardService.getAllCards();
@@ -71,6 +91,10 @@ export class CardController {
   }
 
   // 특정 카드 가져오기
+  @ApiOperation({
+    summary: '특정 카드 조회 API',
+    description: '카드 ID를 통해 특정 카드를 조회합니다.',
+  })
   @Get(':id')
   async getCard(@Param('id') id: string) {
     const card = await this.cardService.getCard(+id);
@@ -78,6 +102,10 @@ export class CardController {
   }
 
   // 카드 수정
+  @ApiOperation({
+    summary: '카드 수정 API',
+    description: '카드를 수정합니다.',
+  })
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
     const updatedCard = await this.cardService.update(+id, updateCardDto);
@@ -85,6 +113,10 @@ export class CardController {
   }
 
   // 카드 순서 변경
+  @ApiOperation({
+    summary: '카드 순서 변경 API',
+    description: '카드의 순서를 변경합니다.',
+  })
   @Patch(':cardId/:to')
   async moveCardBlock(
     @Param('cardId') cardId: string,
@@ -95,6 +127,10 @@ export class CardController {
   }
 
   // 카드 리스트간 순서 변경
+  @ApiOperation({
+    summary: '카드 리스트간 순서 변경 API',
+    description: '카드 리스트간 순서를 변경합니다.',
+  })
   @Patch(':cardId/:listId/:listTo/:cardTo')
   async moveCardBetweenList(
     @Param('cardId') cardId: string,

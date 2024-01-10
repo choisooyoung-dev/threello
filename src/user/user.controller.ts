@@ -40,7 +40,7 @@ export class UserController {
   @UsePipes(ValidationPipe)
   @ApiResponse({
     status: 201,
-    description: '성공적으로 내 정보를 수정했습니다.',
+    description: '성공적으로 회원가입을 했습니다.',
     type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
   })
   async signup(@Body() createUserDto: CreateUserDto) {
@@ -59,6 +59,11 @@ export class UserController {
   })
   @Post('/signin')
   @UsePipes(ValidationPipe)
+  @ApiResponse({
+    status: 201,
+    description: '성공적으로 로그인을 했습니다.',
+    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+  })
   async signin(@Body() signinUserDto: SigninUserDto) {
     return await this.userService.signin(signinUserDto);
   }
@@ -70,6 +75,11 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('/myinfo')
+  @ApiResponse({
+    status: 200,
+    description: '성공적으로 내정보를 조회 했습니다.',
+    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+  })
   async getMyInfo(@GetUser() user: User) {
     console.log(user);
     return {
@@ -87,6 +97,11 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Delete('/myaccount')
+  @ApiResponse({
+    status: 200,
+    description: '성공적으로 회원탈퇴를 했습니다.',
+    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+  })
   async withdraw(@GetUser() user: User) {
     return await this.userService.withdraw(user);
   }
@@ -105,6 +120,11 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @UsePipes(ValidationPipe)
+  @ApiResponse({
+    status: 200,
+    description: '성공적으로 내 정보를 수정 했습니다.',
+    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+  })
   @Patch('/myinfo')
   async patchMyInfo(@GetUser() user: User, @Body('nick') nick: string) {
     return await this.userService.patchMyInfo(user, nick);

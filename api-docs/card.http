@@ -1,24 +1,51 @@
-@host = http://localhost:3000/api/1
+@host = http://localhost:3000/api
+@Token = {{login.response.body.$.accessToken}}
 
-###
-# GET ALL CARDS
-GET {{host}}/card
-
-###
-# GET CARD
-<<<<<<< HEAD
-GET {{host}}/card/5
-=======
-GET {{host}}/card/9
->>>>>>> 955b2bf8417e364444cdea2464b97280dfb5960b
-
-###
-# CREATE CARD
-POST {{host}}/card/create
+// user
+### 회원가입
+POST http://localhost:3000/api/user/signup
 Content-Type: application/json
 
 {
-    "list_id":3, 
+  "email": "test@test.com",
+  "nick": "test",
+  "password": "1q2w3e4r1234",
+  "passwordConfirm": "1q2w3e4r1234"
+}
+
+### 로그인
+# @name login
+POST http://localhost:3000/api/user/signin
+Content-Type: application/json
+
+{
+  "email": "test33@email.com",
+  "password": "test3333"
+}
+
+### 내 정보 조회
+GET http://localhost:3000/api/user/myinfo
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+###
+# GET ALL CARDS
+GET {{host}}/1/card/all/1
+Authorization: Bearer {{Token}}
+
+###
+# GET CARD
+GET {{host}}/1/card/56
+Authorization: Bearer {{Token}}
+
+###
+# CREATE CARD
+POST {{host}}/1/card/create
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+    "list_id":1, 
     "title": "dummy card",
     "content": "dummy card's content",
     "dueDateValue": "2024-01-10",
@@ -27,7 +54,8 @@ Content-Type: application/json
 
 ### 
 # UPDATE CARD
-PATCH  {{host}}/card/4
+PATCH  {{host}}/1/card/58
+Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 {
@@ -35,25 +63,29 @@ Content-Type: application/json
 }
 
 ### 
-# UPDATE CARD ORDER (현재 카드아이디 값/옮기고 싶은 위치의 카드 order 값)
-PATCH {{host}}/card/4/1
+# UPDATE CARD ORDER (보드아이디/현재 카드아이디 값/옮기고 싶은 위치의 카드 order 값)
+PATCH {{host}}/1/card/55/3
+Authorization: Bearer {{Token}}
 
 ### 
 # UPDATE CARD LIST ORDER (현재 카드아이디 값/옮기고 싶은 위치의 list 아이디 값/옮기고 싶은 위치의 카드 order 값)
-<<<<<<< HEAD
-PATCH {{host}}/card/4/1/2/1
- 
-=======
-PATCH {{host}}/card/3/1/2/1
+PATCH {{host}}/1/card/58/1/2/1
+Authorization: Bearer {{Token}}
 
->>>>>>> 955b2bf8417e364444cdea2464b97280dfb5960b
 ### 
 # DELETE CARD
-DELETE {{host}}/card/delete/4
+DELETE {{host}}/1/card/delete/59
+Authorization: Bearer {{Token}}
   
+###
+# ALL WORKER
+GET {{host}}/1/card/worker/all
+Authorization: Bearer {{Token}}
+
 ### 
 #CREATE WORKER
-POST {{host}}/card/9/worker/create
+POST {{host}}/1/card/9/worker/create
+Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 {
@@ -65,6 +97,7 @@ Content-Type: application/json
 
 ###
 # DELETE WORKER
-DELETE {{host}}/card/2/worker/remove/1
+DELETE {{host}}/1/card/2/worker/remove/1
+Authorization: Bearer {{Token}}
 
  

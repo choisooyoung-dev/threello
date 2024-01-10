@@ -20,8 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/decorator/get-user.decorator';
-import { User } from 'src/user/entities/user.entity';
+import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 import { Card } from './entities/card.entity';
 import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
@@ -40,15 +39,14 @@ export class CardController {
   })
   @ApiBody({ type: CreateCardDto })
   @Post('/create')
-  @ApiResponse({ type: Card })
-  async create(@GetUser() user: User, @Body() createCardDto: CreateCardDto) {
+  async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
       createCardDto.list_id,
       createCardDto,
       createCardDto.dueDateValue,
       createCardDto.dueTimeValue,
     );
-    return { data, user };
+    return data;
   }
 
   // 카드 삭제
@@ -61,6 +59,18 @@ export class CardController {
   async remove(@Param('id') id: string) {
     const cards = await this.cardService.remove(+id);
     return cards;
+  }
+
+  // 보드 내 멤버 조회(작업자 조회)
+  @ApiOperation({
+    summary: '보드에 초대된 모든 멤버 조회',
+    description:
+      '작업자 할당 시 보드 내에 초대된 모든 멤버만 할당하기 위해 해당 멤버를 조회합니다.',
+  })
+  @Get('/worker/all')
+  async getAllWorkers(@Param('boardId') boardId: string) {
+    const data = await this.cardService.getAllWorkers(+boardId);
+    return data;
   }
 
   // 카드 내 작업자 할당
@@ -94,16 +104,17 @@ export class CardController {
     return data;
   }
 
-  // // 모든 카드 가져오기
-  // @ApiOperation({
-  //   summary: '모든 카드 조회 API',
-  //   description: '모든 카드를 조회합니다.',
-  // })
-  // @Get('/:listId')
-  // async getAllCards(@Param('listId') listId: string) {
-  //   const cards = await this.cardService.getAllCards();
-  //   return cards;
-  // }
+  // 리스트 안에 모든 카드 가져오기
+  @ApiOperation({
+    summary: '모든 카드 조회 API',
+    description: '모든 카드를 조회합니다.',
+  })
+  @Get('/all/:listId')
+  @ApiResponse({ type: Card, isArray: true })
+  async getAllCards(@Param('listId') listId: string) {
+    const cards = await this.cardService.getAllCards(+listId);
+    return cards;
+  }
 
   // 특정 카드 가져오기
   @ApiOperation({
@@ -156,14 +167,12 @@ export class CardController {
     @Param('cardId') cardId: string,
     @Param('listId') listId: string,
     @Param('listTo') listTo: string,
-    @Param('cardTo') cardTo: string,
   ) {
     const movedCardBetweenList =
       await this.cardService.moveCardBlockBeteweenList(
         +cardId,
         +listId,
         +listTo,
-        +cardTo,
       );
     return movedCardBetweenList;
   }

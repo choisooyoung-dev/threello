@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { Card } from 'src/card/entities/card.entity';
+import { BoardMember } from 'src/board/entities/board-member.entity';
 
 @Injectable()
 export class CardService {
@@ -13,6 +14,8 @@ export class CardService {
     @InjectRepository(Card) private cardRepository: Repository<Card>,
     @InjectRepository(CardWorker)
     private cardWorkerRepository: Repository<CardWorker>,
+    @InjectRepository(BoardMember)
+    private boardMemberRepository: Repository<BoardMember>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -25,29 +28,32 @@ export class CardService {
   ) {
     const { title, color, content } = createCardDto;
 
-    const getAllCards = await this.cardRepository.find();
-    //  console.log(allGetCard);
+    const getAllCards = await this.getAllCards(list_id);
+    // console.log('getAllCards: ', getAllCards);
 
-    const cardOrder = getAllCards.length + 1;
+    const newCardOrder = getAllCards.length + 1;
+    // console.log('newCardOrder: ', newCardOrder);
 
     // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
 
     const newCard = await this.cardRepository.save({
-      list: { id: list_id },
       title,
       content,
-      card_order: cardOrder,
+      card_order: newCardOrder,
       color,
       due_date: `${dueDateValue} ${dueTimeValue}`,
+      list_id,
     });
 
     return this.getCard(newCard.id);
   }
 
-  // 모든 카드 조회
-  async getAllCards() {
-    const getAllCards = await this.cardRepository.find();
+  // 모든 카드 조회 (리스트 안에)
+  async getAllCards(listId: number) {
+    const getAllCards = await this.cardRepository.find({
+      where: { list: { id: listId } },
+    });
     return getAllCards;
   }
 
@@ -70,6 +76,7 @@ export class CardService {
       const nowDate = new Date();
 
       const timeDifference = dueDate.getTime() - nowDate.getTime();
+      console.log('timeDifference: ', timeDifference);
 
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
       console.log('hoursDifference: ', hoursDifference);
@@ -206,37 +213,64 @@ export class CardService {
   }
 
   // 리스트간 카드 이동
+  // ---> 일단 카드가 다른 리스트로 옮겨갔을때 맨 마지막으로 가도록 해놨습니다
+  // 1리스트에서 2리스트로 옮겨가는 과정
+
+  // 2리스트에서 컨텐츠 내용과 똑같은 카드하나를 생성
+  // 지우고 다시만들기 = 이동
+  // 2리스트에서 생성이 잘됐으면 맨 뒤에 있을거임
+  // 그거를 cardTo로 다시 이동메서드 수행
   async moveCardBlockBeteweenList(
     cardId: number,
     listId: number,
     listTo: number,
-    cardTo: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       // 옮기기 전 list_id 값의 속한 카드들 정렬
-      const existingCard = await this.cardRepository.find({
-        where: { list: { id: listId } },
-        select: ['list'],
-      });
+      const currentListInCards = await this.getAllCards(listId);
+      console.log('currentListInCards: ', currentListInCards);
 
-      console.log(existingCard.length);
+      // // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
+      await this.moveCardBlock(cardId, currentListInCards.length);
 
-      if (!existingCard)
-        throw new NotFoundException('해당하는 카드가 없습니다.');
+      // 처음 리스트에 해당 카드를 불러와서 컨텐츠를 미리 변수화
+      const card = await this.cardRepository.findOneBy({ id: cardId });
 
-      const moveCard = await this.cardRepository.findOne({
-        where: { id: cardId },
-      });
+      if (!card) throw new NotFoundException('해당하는 카드가 없습니다.');
+      const { title, content, color, due_date, deadline_status, card_order } =
+        card;
+      console.log('due_date: ', due_date);
+      // 1리스트에 해당 카드를 삭제
+      // await this.remove(cardId);
 
-      // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
-      await this.moveCardBlock(cardId, existingCard.length);
+      console.log(card);
+      const dueDateValue = card.due_date;
+      console.log('dueDateValue: ', dueDateValue);
+
+      // await this.cardRepository.save({
+      //   title,
+      //   content,
+      //   color,
+      //   due_date,
+      //   deadline_status,
+      //   list: { id: listTo },
+      //   card_order,
+      // });
 
       // 리스트 값 바꾸기
       await this.cardRepository.update(cardId, {
         list: { id: listTo },
+      });
+
+      // 옮긴 후 리스트 카드 목록 불러오기
+      const movedListInCards = await this.getAllCards(listTo);
+      console.log('movedListInCards: ', movedListInCards);
+
+      await this.cardRepository.update(cardId, {
+        card_order: movedListInCards.length,
       });
 
       await queryRunner.commitTransaction();
@@ -258,6 +292,14 @@ export class CardService {
       .getRawOne();
 
     return await cardCount;
+  }
+
+  // 작업자 조회
+  async getAllWorkers(boardId: number) {
+    const invitedMembers = await this.boardMemberRepository.find({
+      where: { id: boardId },
+    });
+    console.log('invitedMembers ===> ', invitedMembers);
   }
 
   // 작업자 할당

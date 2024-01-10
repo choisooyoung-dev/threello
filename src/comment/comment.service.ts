@@ -38,7 +38,9 @@ export class CommentService {
     if (!existCard) {
       throw new NotFoundException('카드가 존재하지 않습니다.');
     }
-    const getAllComments = await this.commentRepository.find();
+    const getAllComments = await this.commentRepository.find({
+      order: { created_at: 'DESC' },
+    });
     return getAllComments;
   }
 

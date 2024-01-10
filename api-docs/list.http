@@ -1,6 +1,32 @@
 @host = http://localhost:3000
 @Token = {{login.response.body.$.access_token}}
 
+// user
+### 회원가입
+POST {{host}}/api/user/signup
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "nick": "test",
+  "password": "1q2w3e4r1234",
+  "passwordConfirm": "1q2w3e4r1234"
+}
+
+### 로그인
+# @name login
+POST {{host}}/api/user/signin
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "1q2w3e4r1234"
+}
+
+### 내 정보 조회
+GET {{host}}/api/user/myinfo
+Content-Type: application/json
+
 // 리스트 테스트
 ### 리스트등록
 POST {{host}}/api/list

@@ -57,6 +57,23 @@ export class CheckItemController {
     return await this.checkItemService.moveCheckItemBlock(+id, to);
   }
 
+  // 카드 리스트간 순서 변경
+  @Patch(':itemId/:listTo/:itemTo')
+  async moveItemBetweenList(
+    @Param('itemId') itemId: string,
+    @Param('listTo') listTo: string,
+    @Param('itemTo') itemTo: string,
+  ) {
+    const listCount = await this.checkItemService.count(Number(listTo));
+    const moveItemBetweenList = await this.checkItemService.moveItemBetweenList(
+      +itemId,
+      +listTo,
+      +itemTo,
+      +listCount,
+    );
+    return moveItemBetweenList;
+  }
+
   @Delete(':itemId')
   async remove(@Param('itemId') id: string) {
     return await this.checkItemService.remove(+id);

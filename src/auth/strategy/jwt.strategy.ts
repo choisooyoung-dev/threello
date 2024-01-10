@@ -20,7 +20,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload) {
     const { email } = payload;
-    const user: User = await this.userRepository.findOneBy({ email });
+    const user: User = await this.userRepository.findOne({
+      where: { email },
+      relations: ['boardMembers', 'boardMembers.board'], // 여기에 가져오고자 하는 관계를 명시합니다.
+    });
 
     if (!user) {
       throw new UnauthorizedException();

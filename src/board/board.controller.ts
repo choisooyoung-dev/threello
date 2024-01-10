@@ -26,6 +26,7 @@ import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { BoardMember } from './entities/board-member.entity';
 import { ResponseInterface } from 'src/response/interface/response.interface';
+import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 
 @ApiTags('boards')
 @Controller('boards')
@@ -85,16 +86,16 @@ export class BoardController {
     description: '보드를 업데이트 합니다.',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':id')
   @ApiBody({ type: CreateBoardDto })
   @ApiResponse({ type: BoardMember })
   async updateBoard(
     @Param('id') id: number,
     @Body() updateBoardDto: CreateBoardDto,
-    @Request() req,
+    @GetUser() user: User,
   ): Promise<Board> {
-    return await this.boardService.updateBoard(req.user.id, id, updateBoardDto);
+    return await this.boardService.updateBoard(user.id, id, updateBoardDto);
   }
 
   // 보드 삭제 고쳐야 한다. 이건 누구나 지울 수 있다.
@@ -103,10 +104,13 @@ export class BoardController {
     description: 'ID에 해당하는 보드를 삭제합니다.',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':id')
-  async deleteBoard(@Param('id') id: number, @Request() req): Promise<void> {
-    await this.boardService.deleteBoard(req.user.id, id);
+  async deleteBoard(
+    @Param('id') id: number,
+    @GetUser() user: User,
+  ): Promise<void> {
+    await this.boardService.deleteBoard(user.id, id);
   }
 
   @ApiOperation({

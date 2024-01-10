@@ -22,6 +22,10 @@ export class Card {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @IsNotEmpty()
+  @Column()
+  list_id: number;
+
   @IsOptional()
   @IsNumber()
   @Column()
@@ -30,17 +34,19 @@ export class Card {
   @IsNotEmpty({ message: '카드 제목을 입력해주세요.' })
   @IsString()
   @Column()
-  @ApiProperty({ description: '카드 제목', example: 'cardTitle' })
+  @ApiProperty({ description: '카드 제목', example: 'Card Title' })
   title: string;
 
   @IsOptional()
   @IsString()
   @Column({ nullable: true })
+  @ApiProperty({ description: '카드 내용', example: 'Card Content' })
   content?: string;
 
   @IsOptional()
   @IsString()
   @Column({ type: 'enum', enum: Color, nullable: true })
+  @ApiProperty({ description: '카드 인덱스 색상', example: 'blue' })
   color?: Color;
 
   @IsOptional()

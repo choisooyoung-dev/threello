@@ -12,13 +12,13 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), BoardMemberGuard)
 @ApiTags('card')
 @Controller('/:boardId/card')
 export class CardController {
@@ -52,6 +52,18 @@ export class CardController {
     return cards;
   }
 
+  // 보드 내 멤버 조회(작업자 조회)
+  @ApiOperation({
+    summary: '보드에 초대된 모든 멤버 조회',
+    description:
+      '작업자 할당 시 보드 내에 초대된 모든 멤버만 할당하기 위해 해당 멤버를 조회합니다.',
+  })
+  @Get('/worker/all')
+  async getAllWorkers(@Param('boardId') boardId: string) {
+    const data = await this.cardService.getAllWorkers(+boardId);
+    return data;
+  }
+
   // 카드 내 작업자 할당
   @ApiOperation({
     summary: '카드 내 작업자 할당 API',
@@ -81,14 +93,14 @@ export class CardController {
     return data;
   }
 
-  // 모든 카드 가져오기
+  // 리스트 안에 모든 카드 가져오기
   @ApiOperation({
     summary: '모든 카드 조회 API',
     description: '모든 카드를 조회합니다.',
   })
-  @Get('/:listId')
+  @Get('/all/:listId')
   async getAllCards(@Param('listId') listId: string) {
-    const cards = await this.cardService.getAllCards();
+    const cards = await this.cardService.getAllCards(+listId);
     return cards;
   }
 

@@ -5,9 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { DeadlineStatus } from './types/deadline.status.type';
 import { Card } from 'src/card/entities/card.entity';
-import { User } from 'src/user/entities/user.entity';
+import { BoardMember } from 'src/board/entities/board-member.entity';
 
 @Injectable()
 export class CardService {
@@ -15,6 +14,8 @@ export class CardService {
     @InjectRepository(Card) private cardRepository: Repository<Card>,
     @InjectRepository(CardWorker)
     private cardWorkerRepository: Repository<CardWorker>,
+    @InjectRepository(BoardMember)
+    private boardMemberRepository: Repository<BoardMember>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -24,34 +25,35 @@ export class CardService {
     createCardDto: CreateCardDto,
     dueDateValue: string,
     dueTimeValue: string,
-    user: User,
   ) {
-    const { id } = user;
-    if (id) const { title, color, content } = createCardDto;
+    const { title, color, content } = createCardDto;
 
-    // const getAllCards = await this.cardRepository.find();
-    //  console.log(allGetCard);
+    const getAllCards = await this.getAllCards(list_id);
+    // console.log('getAllCards: ', getAllCards);
 
-    const cardOrder = Number(await this.count(list_id)) + 1;
+    const newCardOrder = getAllCards.length + 1;
+    // console.log('newCardOrder: ', newCardOrder);
 
     // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
 
     const newCard = await this.cardRepository.save({
-      list: { id: list_id },
       title,
       content,
-      card_order: cardOrder,
+      card_order: newCardOrder,
       color,
       due_date: `${dueDateValue} ${dueTimeValue}`,
+      list_id,
     });
 
     return this.getCard(newCard.id);
   }
 
-  // 모든 카드 조회
-  async getAllCards() {
-    const getAllCards = await this.cardRepository.find();
+  // 모든 카드 조회 (리스트 안에)
+  async getAllCards(listId: number) {
+    const getAllCards = await this.cardRepository.find({
+      where: { list: { id: listId } },
+    });
     return getAllCards;
   }
 
@@ -72,12 +74,8 @@ export class CardService {
     // 마감기한 상태가 uncomplete면?
     if (deadlineStatus === 0) {
       const nowDate = new Date();
-      // console.log('nowDate ===> ', nowDate);
 
-      const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
-      console.log('convertDueDate: ', convertDueDate);
-
-      const timeDifference = convertDueDate - nowDate.getHours();
+      const timeDifference = dueDate.getTime() - nowDate.getTime();
       console.log('timeDifference: ', timeDifference);
 
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
@@ -273,6 +271,14 @@ export class CardService {
       .getRawOne();
 
     return await cardCount;
+  }
+
+  // 작업자 조회
+  async getAllWorkers(boardId: number) {
+    const invitedMembers = await this.boardMemberRepository.find({
+      where: { id: boardId },
+    });
+    console.log('invitedMembers ===> ', invitedMembers);
   }
 
   // 작업자 할당

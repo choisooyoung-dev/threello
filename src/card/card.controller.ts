@@ -11,10 +11,10 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('card')
+@ApiBearerAuth()
 @Controller('/:boardId/card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
@@ -24,18 +24,14 @@ export class CardController {
     summary: '카드 생성 API',
     description: '카드를 생성합니다.',
   })
+  @ApiBody({ type: CreateCardDto })
   @Post('/create')
-  async create(
-    @Body('list_id') list_id: number,
-    @Body() createCardDto: CreateCardDto,
-    @Body('dueTimeValue') dueTimeValue: string,
-    @Body('dueDateValue') dueDateValue: string,
-  ) {
+  async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
-      list_id,
+      createCardDto.list_id,
       createCardDto,
-      dueDateValue,
-      dueTimeValue,
+      createCardDto.dueDateValue,
+      createCardDto.dueTimeValue,
     );
     return data;
   }
@@ -56,6 +52,7 @@ export class CardController {
     summary: '카드 내 작업자 할당 API',
     description: '카드 내에 해당 작업을 담당하는 작업자를 할당합니다.',
   })
+  @ApiBody({ type: CreateWorkerDto })
   @Post(':id/worker/create')
   async createWorker(
     @Param('id') cardId: string,
@@ -107,6 +104,7 @@ export class CardController {
     description: '카드를 수정합니다.',
   })
   @Patch(':id')
+  @ApiBody({ type: UpdateCardDto })
   async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
     const updatedCard = await this.cardService.update(+id, updateCardDto);
     return updatedCard;

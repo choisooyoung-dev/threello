@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/mapped-types';
+import { PickType } from '@nestjs/swagger';
 import { Comment } from '../entities/comment.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
 

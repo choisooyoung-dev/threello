@@ -14,9 +14,8 @@ import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
 
 @ApiTags('card')
 @UseGuards(AuthGuard('jwt'))
@@ -31,7 +30,7 @@ export class CardController {
   })
   @Post('/create')
   async create(
-    @GetUser()
+    @GetUser() user: User,
     @Body('list_id')
     list_id: number,
     @Body() createCardDto: CreateCardDto,
@@ -91,8 +90,10 @@ export class CardController {
     summary: '모든 카드 조회 API',
     description: '모든 카드를 조회합니다.',
   })
-  @Get()
-  async getAllCards() {
+  @Get('/:listId')
+  async getAllCards(
+    @Param('listId')
+  ) {
     const cards = await this.cardService.getAllCards();
     return cards;
   }

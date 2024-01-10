@@ -4,6 +4,7 @@ import { List } from '../../list/entities/list.entity';
 import { BoardMember } from './board-member.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { Color } from 'src/common/types/color.type';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('boards')
 export class Board {
@@ -13,6 +14,7 @@ export class Board {
   @IsNotEmpty({ message: '보드명을 입력해 주세요.' })
   @IsString()
   @Column()
+  @ApiProperty({ description: '보드 제목', example: 'boardTitle' })
   title: string;
 
   @IsOptional()

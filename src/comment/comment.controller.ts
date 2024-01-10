@@ -83,6 +83,7 @@ export class CommentController {
     description: '댓글을 수정합니다.',
   })
   @Patch(':id')
+  @ApiBody({ type: UpdateCommentDto })
   async updateComment(
     @Param('board_id') board_id: number,
     @Param('id') id: string,

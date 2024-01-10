@@ -18,7 +18,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 
-
 @UseGuards(AuthGuard('jwt'))
 @ApiTags('card')
 @ApiBearerAuth()
@@ -33,9 +32,7 @@ export class CardController {
   })
   @ApiBody({ type: CreateCardDto })
   @Post('/create')
-
   async create(@GetUser() user: User, @Body() createCardDto: CreateCardDto) {
-
     const data = await this.cardService.create(
       createCardDto.list_id,
       createCardDto,

@@ -109,11 +109,7 @@ export class UserController {
   @ApiBody({
     schema: {
       properties: {
-<<<<<<< HEAD
         nick: { type: 'string', example: 'updatedNick' },
-=======
-        nick: { type: 'string' },
->>>>>>> 959359f07429aed6282a172ca52248b0ae338b82
       },
     },
   })

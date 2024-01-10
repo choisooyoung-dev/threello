@@ -12,7 +12,8 @@ import { ListService } from './list.service';
 import { BoardService } from '../board/board.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ResponseInterface } from 'src/response/interface/response.interface';
 
 @ApiTags('list')
 @Controller('list')
@@ -30,6 +31,11 @@ export class ListController {
   @ApiBearerAuth()
   @ApiBody({ type: CreateListDto })
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: '성공적으로 리스트를 생성했습니다.',
+    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+  })
   async create(@Body() createListDto: CreateListDto) {
     await this.boardService.getBoardById(createListDto.boards_id);
     const listCount = await this.listService.count(createListDto.boards_id);

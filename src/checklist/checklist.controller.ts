@@ -6,15 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CheckListService } from './checklist.service';
 import { CreateCheckListDto } from './dto/create-checklist.dto';
 import { UpdateCheckListDto } from './dto/update-checklist.dto';
 import { CardService } from '../card/card.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-
+import { AuthGuard } from '@nestjs/passport';
+import { BoardMemberGuard } from '../auth/guard/board-member.guard';
 @ApiBearerAuth()
-@ApiTags('checklist')
+@ApiTags('/:boardId/checklist')
 @Controller('checklist')
 export class CheckListController {
   constructor(
@@ -26,6 +28,7 @@ export class CheckListController {
     summary: '체크리스트 생성 API',
     description: '체크리스트를 생성합니다.',
   })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Post()
   @ApiBody({ type: CreateCheckListDto })
   async create(@Body() createCheckListDto: CreateCheckListDto) {
@@ -43,6 +46,7 @@ export class CheckListController {
     summary: '카드 내 체크리스트 모두 조회 API',
     description: '카드 ID를 통해 특정 카드의 체크리스트를 모두 조회 합니다.',
   })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get('all/:card_id')
   async findAll(@Param('card_id') card_id: number) {
     return await this.checkListService.findAll(card_id);
@@ -52,6 +56,7 @@ export class CheckListController {
     summary: '특정 체크리스트 조회 API',
     description: '체크리스트 ID를 통해 특정 체크리스트를 조회합니다.',
   })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get(':listId')
   async findOne(@Param('listId') id: number) {
     return await this.checkListService.findOne(+id);
@@ -61,6 +66,7 @@ export class CheckListController {
     summary: '체크리스트 수정 API',
     description: '체크리스트를 수정합니다.',
   })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @ApiBody({ type: UpdateCheckListDto })
   @Patch(':listId')
   async update(
@@ -74,6 +80,7 @@ export class CheckListController {
     summary: '체크리스트 이동 API',
     description: '체크리스트를 이동합니다.',
   })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':listId/:to')
   async moveListBlock(@Param('listId') id: number, @Param('to') to: number) {
     return await this.checkListService.moveCheckListBlock(+id, to);
@@ -83,6 +90,7 @@ export class CheckListController {
     summary: '체크리스트 삭제 API',
     description: '체크리스트를 삭제합니다.',
   })
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':listId')
   async remove(@Param('listId') id: string) {
     return await this.checkListService.remove(+id);

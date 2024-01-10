@@ -112,10 +112,10 @@ export class CheckListService {
   }
 
   // 지원메서드 count(전체 list 개수를 세 줌)
-  async count(boards_id: number) {
+  async count(card_id: number) {
     const listCount = await this.checklistRepository
       .createQueryBuilder('checklist')
-      .where({ boards_id: boards_id })
+      .where({ card_id: card_id })
       .select('COUNT(checklist.check_order)', 'total_list_count')
       .getRawOne();
 

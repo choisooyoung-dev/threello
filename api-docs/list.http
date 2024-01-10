@@ -161,3 +161,43 @@ Content-Type: application/json
 DELETE {{host}}/api/1/2/comments/6
 Authorization: Bearer {{Token}}
 Content-Type: application/json
+
+// 체크리스트
+### 리스트등록
+POST {{host}}/api/1/checklist
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "card_id": 5,
+  "title": "test"
+}
+
+### 리스트보기
+GET {{host}}/api/1/checklist/all/5
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 리스트 보기
+GET {{host}}/api/1/checklist/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 타이틀수정
+PATCH {{host}}/api/1/checklist/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "title": "test22"
+}
+
+### 특정 예약 순서수정
+PATCH {{host}}/api/1/checklist/1/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 삭제
+DELETE {{host}}/api/1/checklist/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json

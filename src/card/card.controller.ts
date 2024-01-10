@@ -37,6 +37,7 @@ export class CardController {
     description: '카드를 생성합니다.',
   })
   @ApiBody({ type: CreateCardDto })
+  @ApiBearerAuth()
   @Post('/create')
   async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
@@ -54,6 +55,7 @@ export class CardController {
     description: '카드를 삭제합니다.',
   })
   @ApiResponse({ type: Card, isArray: true })
+  @ApiBearerAuth()
   @Delete('/delete/:id')
   async remove(@Param('id') id: string) {
     const cards = await this.cardService.remove(+id);
@@ -66,6 +68,7 @@ export class CardController {
     description:
       '작업자 할당 시 보드 내에 초대된 모든 멤버만 할당하기 위해 해당 멤버를 조회합니다.',
   })
+  @ApiBearerAuth()
   @Get('/worker/all')
   async getAllWorkers(@Param('boardId') boardId: string) {
     const data = await this.cardService.getAllWorkers(+boardId);
@@ -79,6 +82,7 @@ export class CardController {
   })
   @ApiBody({ type: CreateWorkerDto })
   @ApiResponse({ type: CardWorker, isArray: true })
+  @ApiBearerAuth()
   @Post(':id/worker/create')
   async createWorker(
     @Param('boardId') boardId: string,
@@ -98,6 +102,7 @@ export class CardController {
     summary: '카드 내 작업자 삭제 API',
     description: '카드 내에 해당 작업을 담당하는 작업자를 삭제합니다.',
   })
+  @ApiBearerAuth()
   @Delete(':id/worker/remove/:userId')
   @ApiResponse({ type: DeleteResult })
   async removeWorker(
@@ -171,12 +176,14 @@ export class CardController {
     @Param('cardId') cardId: string,
     @Param('listId') listId: string,
     @Param('listTo') listTo: string,
+    @Param('cardTo') cardTo: string,
   ) {
     const movedCardBetweenList =
       await this.cardService.moveCardBlockBeteweenList(
         +cardId,
         +listId,
         +listTo,
+        +cardTo,
       );
     return movedCardBetweenList;
   }

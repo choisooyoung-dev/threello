@@ -181,11 +181,15 @@ export class CardService {
         min = cardBlock[0].card_order;
       }
 
+      const list_id = cardBlock[0].list_id;
       const currentCards = await this.cardRepository
         .createQueryBuilder('card')
         .where('card.card_order >= :min AND card.card_order <= :max', {
           min: min,
           max: max,
+        })
+        .andWhere('card.list_id = :list_id', {
+          list_id: list_id,
         })
         .getMany();
 
@@ -224,6 +228,7 @@ export class CardService {
     cardId: number,
     listId: number,
     listTo: number,
+    cardTo: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -269,9 +274,11 @@ export class CardService {
       const movedListInCards = await this.getAllCards(listTo);
       console.log('movedListInCards: ', movedListInCards);
 
-      await this.cardRepository.update(cardId, {
-        card_order: movedListInCards.length,
-      });
+      // await this.cardRepository.update(cardId, {
+      //   card_order: movedListInCards.length,
+      // });
+
+      await this.moveCardBlock(cardId, cardTo);
 
       await queryRunner.commitTransaction();
       return this.getCard(cardId);

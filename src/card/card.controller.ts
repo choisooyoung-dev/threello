@@ -12,9 +12,13 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { List } from 'src/list/entities/list.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
+@UseGuards(AuthGuard('jwt'))
 @ApiTags('card')
 @Controller('/:boardId/card')
 export class CardController {
@@ -25,19 +29,16 @@ export class CardController {
     summary: '카드 생성 API',
     description: '카드를 생성합니다.',
   })
-<<<<<<< HEAD
   @ApiBody({ type: CreateCardDto })
-=======
->>>>>>> 959359f07429aed6282a172ca52248b0ae338b82
   @Post('/create')
-  async create(@Body() createCardDto: CreateCardDto) {
+  async create(@GetUser() user: User, @Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
       createCardDto.list_id,
       createCardDto,
       createCardDto.dueDateValue,
       createCardDto.dueTimeValue,
     );
-    return data;
+    return { data, user };
   }
 
   // 카드 삭제
@@ -56,9 +57,7 @@ export class CardController {
     summary: '카드 내 작업자 할당 API',
     description: '카드 내에 해당 작업을 담당하는 작업자를 할당합니다.',
   })
-
   @ApiBody({ type: CreateWorkerDto })
-
   @Post(':id/worker/create')
   async createWorker(
     @Param('id') cardId: string,
@@ -88,9 +87,7 @@ export class CardController {
     description: '모든 카드를 조회합니다.',
   })
   @Get('/:listId')
-  async getAllCards(
-    @Param('listId')
-  ) {
+  async getAllCards(@Param('listId') listId: string) {
     const cards = await this.cardService.getAllCards();
     return cards;
   }

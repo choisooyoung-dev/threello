@@ -71,6 +71,6 @@ export class BoardController {
     @Body('email') email: string,
     @GetUser() user: User,
   ) {
-    await this.boardService.invite(boardId, email, user);
+    return await this.boardService.invite(boardId, email, user);
   }
 }

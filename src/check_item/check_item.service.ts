@@ -93,6 +93,39 @@ export class CheckItemService {
     }
   }
 
+  // 리스트간 아이템 옮기기(트랜잭션)
+  async moveItemBetweenList(
+    itemId: number,
+    listTo: number,
+    itemTo: number,
+    listCount: number,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const item = (await this.verifyListById(itemId)).checkItem[0];
+      const { content } = item;
+      await this.remove(itemId);
+      const CreateCheckItemDto = { checklist_id: listTo, content };
+      await this.create(CreateCheckItemDto, listCount + 1);
+      const newItem = await this.checkItemRepository.find({
+        where: {
+          checklist_id: listTo,
+          lists_order: listCount + 1,
+        },
+      });
+      await this.moveCheckItemBlock(newItem[0].id, itemTo);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      console.error(err);
+      throw err;
+    }
+  }
+
   // 삭제
   async remove(id: number) {
     // 일단 리스트를 열람하고 얘가 전체중 몇번째애인지 확인
@@ -116,7 +149,7 @@ export class CheckItemService {
     const listCount = await this.checkItemRepository
       .createQueryBuilder('checklist')
       .where({ boards_id: boards_id })
-      .select('COUNT(checklist.lists_order)', 'total_list_count')
+      .select('COUNT(check_item.lists_order)', 'total_list_count')
       .getRawOne();
 
     return await listCount;

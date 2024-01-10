@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
 import { CreateCheckItemDto } from './create-check-item.dto';
 

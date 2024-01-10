@@ -12,14 +12,7 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
@@ -28,7 +21,7 @@ import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
 
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('card')
+@ApiTags('4. card')
 @ApiBearerAuth()
 @Controller('/:boardId/card')
 export class CardController {
@@ -95,17 +88,18 @@ export class CardController {
     return data;
   }
 
-  // 모든 카드 가져오기
-  @ApiOperation({
-    summary: '모든 카드 조회 API',
-    description: '모든 카드를 조회합니다.',
-  })
-  @Get('/:listId')
-  @ApiResponse({ type: Card, isArray: true })
-  async getAllCards(@Param('listId') listId: string) {
-    const cards = await this.cardService.getAllCards();
-    return cards;
-  }
+
+  // // 모든 카드 가져오기
+  // @ApiOperation({
+  //   summary: '모든 카드 조회 API',
+  //   description: '모든 카드를 조회합니다.',
+  // })
+  // @Get('/:listId')
+  // async getAllCards(@Param('listId') listId: string) {
+  //   const cards = await this.cardService.getAllCards();
+  //   return cards;
+  // }
+
 
   // 특정 카드 가져오기
   @ApiOperation({

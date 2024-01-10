@@ -60,6 +60,14 @@ export class BoardService {
     return board;
   }
 
+  // 멤버 확인 인증
+  async getBoardMember(userId: number, boardId: number): Promise<BoardMember> {
+    return await this.boardMemberRepository.findOne({
+      where: { user: { id: userId }, board: { id: boardId } },
+    });
+  }
+
+  // 보드 수정
   async updateBoard(
     userId: number,
     id: number,

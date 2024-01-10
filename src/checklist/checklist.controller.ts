@@ -11,8 +11,9 @@ import { CheckListService } from './checklist.service';
 import { CreateCheckListDto } from './dto/create-checklist.dto';
 import { UpdateCheckListDto } from './dto/update-checklist.dto';
 import { CardService } from '../card/card.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('checklist')
 @Controller('checklist')
 export class CheckListController {
@@ -26,6 +27,7 @@ export class CheckListController {
     description: '체크리스트를 생성합니다.',
   })
   @Post()
+  @ApiBody({ type: CreateCheckListDto })
   async create(@Body() createCheckListDto: CreateCheckListDto) {
     await this.cardService.getCard(createCheckListDto.card_id);
     const listCount = await this.checkListService.count(
@@ -38,7 +40,7 @@ export class CheckListController {
   }
   // 전체보기는 보드보기에 딸려서 이미 실행될거같음 일단 기재
   @ApiOperation({
-    summary: '체크리스트 모두 조회 API',
+    summary: '카드 내 체크리스트 모두 조회 API',
     description: '카드 ID를 통해 특정 카드의 체크리스트를 모두 조회 합니다.',
   })
   @Get('all/:card_id')
@@ -59,6 +61,7 @@ export class CheckListController {
     summary: '체크리스트 수정 API',
     description: '체크리스트를 수정합니다.',
   })
+  @ApiBody({ type: UpdateCheckListDto })
   @Patch(':listId')
   async update(
     @Param('listId') id: number,

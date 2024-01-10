@@ -17,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { BoardMemberGuard } from '../auth/guard/board-member.guard';
 @ApiBearerAuth()
 @ApiTags('6. /:boardId/checklist')
-@Controller('checklist')
+@Controller('/:boardId/checklist')
 export class CheckListController {
   constructor(
     private readonly checkListService: CheckListService,

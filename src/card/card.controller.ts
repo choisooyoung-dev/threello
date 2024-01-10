@@ -167,14 +167,12 @@ export class CardController {
     @Param('cardId') cardId: string,
     @Param('listId') listId: string,
     @Param('listTo') listTo: string,
-    @Param('cardTo') cardTo: string,
   ) {
     const movedCardBetweenList =
       await this.cardService.moveCardBlockBeteweenList(
         +cardId,
         +listId,
         +listTo,
-        +cardTo,
       );
     return movedCardBetweenList;
   }

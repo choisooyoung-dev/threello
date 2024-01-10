@@ -213,9 +213,9 @@ export class CardService {
   }
 
   // 리스트간 카드 이동
+  // ---> 일단 카드가 다른 리스트로 옮겨갔을때 맨 마지막으로 가도록 해놨습니다
   // 1리스트에서 2리스트로 옮겨가는 과정
 
-  // 1리스트에 해당 카드를 삭제
   // 2리스트에서 컨텐츠 내용과 똑같은 카드하나를 생성
   // 지우고 다시만들기 = 이동
   // 2리스트에서 생성이 잘됐으면 맨 뒤에 있을거임
@@ -224,7 +224,6 @@ export class CardService {
     cardId: number,
     listId: number,
     listTo: number,
-    cardTo: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -239,21 +238,27 @@ export class CardService {
 
       // 처음 리스트에 해당 카드를 불러와서 컨텐츠를 미리 변수화
       const card = await this.cardRepository.findOneBy({ id: cardId });
+
       if (!card) throw new NotFoundException('해당하는 카드가 없습니다.');
-      const { title, content, color, due_date, deadline_status } = card;
-      await this.remove(cardId);
+      const { title, content, color, due_date, deadline_status, card_order } =
+        card;
+      console.log('due_date: ', due_date);
+      // 1리스트에 해당 카드를 삭제
+      // await this.remove(cardId);
 
       console.log(card);
-      // const dueDateValue = card.due_date
+      const dueDateValue = card.due_date;
+      console.log('dueDateValue: ', dueDateValue);
 
-      const createCardDto = {
-        title,
-        content,
-        color,
-        due_date,
-        deadline_status,
-      };
-      await this.cardRepository.create(createCardDto);
+      // await this.cardRepository.save({
+      //   title,
+      //   content,
+      //   color,
+      //   due_date,
+      //   deadline_status,
+      //   list: { id: listTo },
+      //   card_order,
+      // });
 
       // 리스트 값 바꾸기
       await this.cardRepository.update(cardId, {
@@ -262,6 +267,11 @@ export class CardService {
 
       // 옮긴 후 리스트 카드 목록 불러오기
       const movedListInCards = await this.getAllCards(listTo);
+      console.log('movedListInCards: ', movedListInCards);
+
+      await this.cardRepository.update(cardId, {
+        card_order: movedListInCards.length,
+      });
 
       await queryRunner.commitTransaction();
       return this.getCard(cardId);

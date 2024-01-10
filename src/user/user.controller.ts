@@ -26,7 +26,7 @@ import {
 import { ResponseInterface } from 'src/response/interface/response.interface';
 import { string } from 'joi';
 
-@ApiTags('user')
+@ApiTags('1. user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

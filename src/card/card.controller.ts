@@ -20,7 +20,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 import { Card } from './entities/card.entity';
 import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
@@ -82,10 +81,15 @@ export class CardController {
   @ApiResponse({ type: CardWorker, isArray: true })
   @Post(':id/worker/create')
   async createWorker(
+    @Param('boardId') boardId: string,
     @Param('id') cardId: string,
     @Body() createWorkerDto: CreateWorkerDto,
   ) {
-    const data = await this.cardService.createWorker(+cardId, createWorkerDto);
+    const data = await this.cardService.createWorker(
+      +boardId,
+      +cardId,
+      createWorkerDto,
+    );
     return data;
   }
 

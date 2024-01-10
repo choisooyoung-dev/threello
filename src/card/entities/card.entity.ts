@@ -15,6 +15,7 @@ import { Color } from 'src/common/types/color.type';
 import { CardWorker } from './card.worker.entity';
 import { DeadlineStatus } from '../types/deadline.status.type';
 import { CheckList } from '../../checklist/entities/checklist.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('cards')
@@ -78,4 +79,7 @@ export class Card {
 
   @OneToMany(() => CardWorker, (cardWorkers) => cardWorkers.card)
   cardWorkers: CardWorker[];
+
+  @OneToMany(() => Comment, (comment) => comment.card)
+  comments: Comment[];
 }

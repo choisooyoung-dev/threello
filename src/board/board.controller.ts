@@ -28,7 +28,7 @@ import { BoardMember } from './entities/board-member.entity';
 import { ResponseInterface } from 'src/response/interface/response.interface';
 import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 
-@ApiTags('boards')
+@ApiTags('2. boards')
 @Controller('boards')
 export class BoardController {
   constructor(private boardService: BoardService) {}

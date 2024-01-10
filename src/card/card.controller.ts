@@ -12,15 +12,22 @@ import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 import { Card } from './entities/card.entity';
 import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
 
-// @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
-@ApiTags('card')
+@UseGuards(AuthGuard('jwt'))
+@ApiTags('4. card')
+@ApiBearerAuth()
 @Controller('/:boardId/card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}

@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Board } from './board.entity';
 import { User } from '../../user/entities/user.entity';
@@ -14,6 +15,12 @@ import { User } from '../../user/entities/user.entity';
 export class BoardMember {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  userId: number;
+
+  @Column()
+  boardId: number;
 
   @IsNotEmpty()
   @IsBoolean()
@@ -32,8 +39,10 @@ export class BoardMember {
   updated_at: Date;
 
   @ManyToOne(() => Board, (boards) => boards.boardMembers)
+  @JoinColumn([{ name: 'boardId', referencedColumnName: 'id' }])
   board: Board;
 
   @ManyToOne(() => User, (user) => user.boardMembers)
+  @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
   user: User;
 }

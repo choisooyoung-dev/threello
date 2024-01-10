@@ -181,11 +181,15 @@ export class CardService {
         min = cardBlock[0].card_order;
       }
 
+      const list_id = cardBlock[0].list_id;
       const currentCards = await this.cardRepository
         .createQueryBuilder('card')
         .where('card.card_order >= :min AND card.card_order <= :max', {
           min: min,
           max: max,
+        })
+        .andWhere('card.list_id = :list_id', {
+          list_id: list_id,
         })
         .getMany();
 
@@ -224,6 +228,7 @@ export class CardService {
     cardId: number,
     listId: number,
     listTo: number,
+    cardTo: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -269,9 +274,11 @@ export class CardService {
       const movedListInCards = await this.getAllCards(listTo);
       console.log('movedListInCards: ', movedListInCards);
 
-      await this.cardRepository.update(cardId, {
-        card_order: movedListInCards.length,
-      });
+      // await this.cardRepository.update(cardId, {
+      //   card_order: movedListInCards.length,
+      // });
+
+      await this.moveCardBlock(cardId, cardTo);
 
       await queryRunner.commitTransaction();
       return this.getCard(cardId);
@@ -296,49 +303,88 @@ export class CardService {
 
   // 작업자 조회
   async getAllWorkers(boardId: number) {
-    const invitedMembers = await this.boardMemberRepository.find({
-      where: { id: boardId },
+    return await this.boardMemberRepository.find({
+      where: { board: { id: boardId } },
     });
-    console.log('invitedMembers ===> ', invitedMembers);
   }
 
   // 작업자 할당
-  async createWorker(cardId: number, createWorkerDto: CreateWorkerDto) {
-    const { userIds } = createWorkerDto;
-
-    const createdWorkers = [];
-
-    for (const user of userIds) {
-      // 작업자 유저아이디가 유저테이블에 있는지
-      // 해당 유저가 멤버인지
-
-      // 작업자 중복 체크
-      const existingWorker = await this.cardWorkerRepository.findOne({
-        where: { user_id: user.id, card: { id: cardId } },
+  async createWorker(
+    boardId: number,
+    cardId: number,
+    createWorkerDto: CreateWorkerDto,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 초대된 멤버인지
+      const getWorkers = await this.getAllWorkers(boardId);
+      console.log(getWorkers);
+      const invitedWorkerArr = [];
+      const createdWorkers = [];
+      getWorkers.forEach((worker) => {
+        invitedWorkerArr.push(worker.userId);
       });
 
-      // 중복된 사람 제외 등록
-      if (!existingWorker) {
-        const newWorker = await this.cardWorkerRepository.save({
-          userId: user.id,
+      console.log('invitedWorkerArr: ', invitedWorkerArr);
+      const { userIds } = createWorkerDto;
+      console.log('userIds: ', userIds);
+
+      for (const user of userIds) {
+        // 해당 유저가 멤버인지
+        if (!invitedWorkerArr.includes(user.id))
+          throw new NotFoundException('초대되지 않은 멤버입니다.');
+
+        // 작업자 중복 체크
+        const existingWorker = await this.cardWorkerRepository.find({
+          where: { user_id: user.id },
+        });
+
+        console.log('existingWorker: ', existingWorker);
+        // 중복된 사람 제외 등록
+        if (existingWorker.length > 0) {
+          throw new Error('중복된 멤버입니다.');
+        }
+        const newWorker = await queryRunner.manager.save(CardWorker, {
+          user_id: user.id,
           card: { id: cardId },
         });
         createdWorkers.push(newWorker);
       }
+      await queryRunner.commitTransaction();
+      return createdWorkers;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return { status: 404, message: error.message };
+    } finally {
+      // 사용이 끝난 후에는 항상 queryRunner를 해제
+      await queryRunner.release();
     }
-    return createdWorkers;
   }
 
   // 작업자 삭제
   async removeWorker(cardId: number, userId: number) {
-    const existingWorker = await this.cardWorkerRepository.findOne({
-      where: { user: { id: userId }, card: { id: cardId } },
-    });
-    if (!existingWorker)
-      throw new NotFoundException('해당되는 사용자가 없습니다.');
-    const deleteWorker = await this.cardWorkerRepository.delete({
-      user: { id: userId },
-    });
-    return deleteWorker;
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const existingWorker = await this.cardWorkerRepository.findOne({
+        where: { user: { id: userId }, card: { id: cardId } },
+      });
+      if (!existingWorker)
+        throw new NotFoundException('해당되는 사용자가 없습니다.');
+      const deleteWorker = await this.cardWorkerRepository.delete({
+        user: { id: userId },
+      });
+      await queryRunner.commitTransaction();
+      return deleteWorker;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return { status: 404, message: error.message };
+    } finally {
+      // 사용이 끝난 후에는 항상 queryRunner를 해제
+      await queryRunner.release();
+    }
   }
 }

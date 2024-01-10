@@ -69,16 +69,10 @@ export class CardService {
     // 마감기한 상태가 uncomplete면?
     if (deadlineStatus === 0) {
       const nowDate = new Date();
-      // console.log('nowDate ===> ', nowDate);
 
-      const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
-      console.log('convertDueDate: ', convertDueDate);
+      const timeDifference = dueDate.getTime() - nowDate.getTime();
 
-      const timeDifference = convertDueDate - nowDate.getHours();
-      console.log('timeDifference: ', timeDifference);
-
-      const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
-      console.log('hoursDifference: ', hoursDifference);
+      const hoursDifference = timeDifference / (1000 * 60 * 60);
 
       let deadlineStatusWithTime: string = '';
 

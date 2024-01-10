@@ -1,5 +1,5 @@
 @host = http://localhost:3000
-@Token = {{login.response.body.$.access_token}}
+@Token = {{login.response.body.$.accessToken}}
 
 // user
 ### 회원가입
@@ -25,7 +25,40 @@ Content-Type: application/json
 
 ### 내 정보 조회
 GET {{host}}/api/user/myinfo
+Authorization: Bearer {{Token}}
 Content-Type: application/json
+
+// 보드
+### 보드 생성
+POST {{host}}/api/boards
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "title": "새 보드",
+  "color": "blue"
+}
+
+### 전체 보드 목록 조회
+GET {{host}}/api/boards
+Authorization: Bearer {{Token}}
+
+### 특정 보드 조회
+GET {{host}}/api/boards/3
+Authorization: Bearer {{Token}}
+
+### 보드 수정(오류)
+PATCH {{host}}/api/boards/3
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "title": "수정된 보드 제목",
+  "color": "red"
+}
+
+### 보드 삭제
+DELETE {{host}}/boards/1
 
 // 리스트 테스트
 ### 리스트등록
@@ -42,7 +75,7 @@ GET {{host}}/api/list/all/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 
-### 특정 예약 보기
+### 특정 리스트 보기
 GET {{host}}/api/list/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json

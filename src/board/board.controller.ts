@@ -38,11 +38,11 @@ export class BoardController {
   //보드 내에서 초대가 가능하게
   //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
 
-  // 전체 보드 목록 조회
+  // 유저가 속한 전체 보드 목록 조회
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getAllBoards(): Promise<Board[]> {
-    return await this.boardService.getAllBoards();
+  async getAllBoards(@Request() req): Promise<Board[]> {
+    return await this.boardService.getAllBoards(req.user.id);
   }
 
   // ID를 기반으로 특정 보드 조회

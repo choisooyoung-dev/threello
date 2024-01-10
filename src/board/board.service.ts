@@ -41,9 +41,14 @@ export class BoardService {
     return savedBoard;
   }
 
-  // 전체 보드 목록 조회
-  async getAllBoards(): Promise<Board[]> {
-    return await this.boardRepository.find();
+  // 유저가 속한 전체 보드 목록 조회
+  async getAllBoards(userId: number): Promise<Board[]> {
+    const boardMembers = await this.boardMemberRepository.find({
+      where: { user: { id: userId } },
+      relations: ['board'],
+    });
+
+    return boardMembers.map((boardMember) => boardMember.board);
   }
 
   // ID를 기반으로 특정 보드 조회

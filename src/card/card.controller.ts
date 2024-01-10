@@ -15,7 +15,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { List } from 'src/list/entities/list.entity';
 
 @ApiTags('card')
-@Controller('card')
+@Controller('/:boardId/card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
 

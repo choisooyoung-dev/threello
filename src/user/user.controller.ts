@@ -24,8 +24,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ResponseInterface } from 'src/response/interface/response.interface';
+import { string } from 'joi';
 
-@ApiTags('user')
+@ApiTags('1. user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -62,7 +63,11 @@ export class UserController {
   @ApiResponse({
     status: 201,
     description: '성공적으로 로그인을 했습니다.',
-    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+    schema: {
+      properties: {
+        accesstoken: { type: 'string', example: 'Bearer <JWT toekn>' },
+      },
+    }, // 또는 응답 형식의 클래스 또는 타입
   })
   async signin(@Body() signinUserDto: SigninUserDto) {
     return await this.userService.signin(signinUserDto);
@@ -78,7 +83,17 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: '성공적으로 내정보를 조회 했습니다.',
-    type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
+    schema: {
+      properties: {
+        code: { type: 'number', example: '200' },
+        message: {
+          type: 'string',
+          example: 'you successfully get your profile',
+        },
+        email: { type: 'string', example: 'userEmail' },
+        nick: { type: 'string', example: 'userNick' },
+      },
+    }, // 또는 응답 형식의 클래스 또는 타입
   })
   async getMyInfo(@GetUser() user: User) {
     console.log(user);

@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { DeadlineStatus } from './types/deadline.status.type';
 import { Card } from 'src/card/entities/card.entity';
 
 @Injectable()
@@ -69,13 +68,8 @@ export class CardService {
     // 마감기한 상태가 uncomplete면?
     if (deadlineStatus === 0) {
       const nowDate = new Date();
-      // console.log('nowDate ===> ', nowDate);
 
-      const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
-      console.log('convertDueDate: ', convertDueDate);
-
-      const timeDifference = convertDueDate - nowDate.getHours();
-      console.log('timeDifference: ', timeDifference);
+      const timeDifference = dueDate.getTime() - nowDate.getTime();
 
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
       console.log('hoursDifference: ', hoursDifference);

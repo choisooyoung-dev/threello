@@ -1,4 +1,4 @@
-@host = http://localhost:3000/api
+@host = http://localhost:3000/api/1
 
 ###
 # GET ALL CARDS
@@ -6,7 +6,7 @@ GET {{host}}/card
 
 ###
 # GET CARD
-GET {{host}}/card/42
+GET {{host}}/card/9
 
 ###
 # CREATE CARD
@@ -36,8 +36,8 @@ PATCH {{host}}/card/1/1
 
 ### 
 # UPDATE CARD LIST ORDER (현재 카드아이디 값/옮기고 싶은 위치의 list 아이디 값/옮기고 싶은 위치의 카드 order 값)
-PATCH {{host}}/card/9/1/2/1
- 
+PATCH {{host}}/card/3/1/2/1
+
 ### 
 # DELETE CARD
 DELETE {{host}}/card/delete/17

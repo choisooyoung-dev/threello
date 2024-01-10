@@ -10,27 +10,27 @@ import {
 export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
-  @ApiProperty({ description: '이메일' })
+  @ApiProperty({ description: '이메일', example: 'test123456@email.com' })
   readonly email: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(4)
   @MaxLength(20)
-  @ApiProperty({ description: '닉네임' })
+  @ApiProperty({ description: '닉네임', example: 'testNick' })
   readonly nick: string;
 
   @IsString()
   @MinLength(8)
   @MaxLength(20)
   @IsNotEmpty()
-  @ApiProperty({ description: '비밀번호' })
+  @ApiProperty({ description: '비밀번호', example: 'testpassword' })
   readonly password: string;
 
   @IsString()
   @MinLength(8)
   @MaxLength(20)
   @IsNotEmpty()
-  @ApiProperty({ description: '비밀번호 재확인' })
+  @ApiProperty({ description: '비밀번호 재확인', example: 'testpassword' })
   readonly passwordConfirm: string;
 }

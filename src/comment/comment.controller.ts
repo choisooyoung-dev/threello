@@ -11,7 +11,7 @@ import {
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BoardService } from 'src/board/board.service';
 
 @ApiTags('comment')
@@ -28,6 +28,7 @@ export class CommentController {
     description: '댓글을 생성 합니다.',
   })
   @Post()
+  @ApiBody({ type: CreateCommentDto })
   async createComment(
     @Param('board_id') board_id: number,
     @Body() createCommentDto: CreateCommentDto,
@@ -82,6 +83,7 @@ export class CommentController {
     description: '댓글을 수정합니다.',
   })
   @Patch(':id')
+  @ApiBody({ type: UpdateCommentDto })
   async updateComment(
     @Param('board_id') board_id: number,
     @Param('id') id: string,

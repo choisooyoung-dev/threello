@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -14,6 +15,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('comment')
 @Controller('/:boardId/:card_id/comments')
@@ -26,6 +28,7 @@ export class CommentController {
     description: '댓글을 생성 합니다.',
   })
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   @ApiBody({ type: CreateCommentDto })
   async createComment(
     @Param('boardId') boardId: number,
@@ -70,13 +73,9 @@ export class CommentController {
     summary: '특정 댓글 조회 API',
     description: '특정 댓글을 조회합니다.',
   })
-  @Get(':id')
-  async getComment(
-    @Param('boardId') boardId: number,
-    @Param('card_id') card_id: number,
-    @Param('id') id: number,
-  ) {
-    const comment = await this.commentService.getComment(+id, boardId, card_id);
+  @Get(':commentId')
+  async getComment(@Param('commentId') commentId: number) {
+    const comment = await this.commentService.getComment(+commentId);
     return {
       statusCode: HttpStatus.OK,
       message: '댓글 조회 완료.',
@@ -89,21 +88,19 @@ export class CommentController {
     summary: '댓글 수정 API',
     description: '댓글을 수정합니다.',
   })
-  @Patch(':id')
+  @Patch(':commentId')
   @ApiBody({ type: UpdateCommentDto })
+  @UseGuards(AuthGuard('jwt'))
   async updateComment(
-    @Param('boardId') boardId: number,
-    @Param('card_id') card_id: number,
-    @Param('id') id: number,
+    @Param('commentId') commentId: number,
     @Body() updateCommentDto: UpdateCommentDto,
     @GetUser() user: User,
   ) {
-    const userId = user.id;
+    const loginUserId = user.id;
     const updateComment = await this.commentService.updateComment(
-      +id,
+      commentId,
       updateCommentDto,
-      boardId,
-      card_id,
+      loginUserId,
     );
     return {
       statusCode: HttpStatus.OK,
@@ -117,21 +114,15 @@ export class CommentController {
     summary: '댓글 삭제 API',
     description: '댓글을 삭제합니다.',
   })
-  @Delete(':id')
-  removeComment(
-    @Param('boardId') boardId: number,
-    @Param('card_id') card_id: number,
-    @Param('id') id: number,
-  ) {
-    const deleteComment = this.commentService.removeComment(
-      +id,
-      boardId,
-      card_id,
-    );
+  @Delete(':commentId')
+  @UseGuards(AuthGuard('jwt'))
+  removeComment(@Param('commentId') commentId: number, @GetUser() user: User) {
+    const loginUserId = user.id;
+    this.commentService.removeComment(commentId, loginUserId);
+
     return {
       statusCode: HttpStatus.OK,
       message: '댓글 삭제 완료.',
-      deleteComment,
     };
   }
 }

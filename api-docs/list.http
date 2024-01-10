@@ -44,7 +44,7 @@ GET {{host}}/api/boards
 Authorization: Bearer {{Token}}
 
 ### 특정 보드 조회
-GET {{host}}/api/boards/3
+GET {{host}}/api/boards/1
 Authorization: Bearer {{Token}}
 
 ### 보드 수정(오류)
@@ -96,5 +96,47 @@ Content-Type: application/json
 
 ### 특정 예약 삭제
 DELETE {{host}}/api/list/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 카드 생성
+POST {{host}}/api/1/card/create
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+    "list_id":1, 
+    "title": "dummy card",
+    "content": "dummy card's content",
+    "dueDateValue": "2024-01-10",
+    "dueTimeValue": "20:00"
+}
+
+### 댓글 작성
+POST {{host}}/api/1/2/comments
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "content": "테스트 댓글 작성"
+}
+
+### 댓글 조회
+GET {{host}}/api/1/2/comments/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+
+### 댓글 수정
+PATCH {{host}}/api/1/2/comments/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "content": "수정된 댓글"
+}
+
+### 댓글 삭제
+DELETE {{host}}/api/1/2/comments/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json

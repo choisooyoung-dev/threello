@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -65,61 +66,43 @@ export class CommentService {
   }
 
   // 특정 댓글 조회
-  async getComment(id: number, boardId: number, card_id: number) {
-    const existBoard = await this.boardService.getBoardById(boardId);
-    if (!existBoard) {
-      throw new NotFoundException('보드가 존재하지 않습니다.');
-    }
-    const existCard = await this.cardService.getCard(card_id);
-    if (!existCard) {
-      throw new NotFoundException('카드가 존재하지 않습니다.');
-    }
+  async getComment(id: number) {
     const getComment = await this.commentRepository.findOneBy({ id });
     return getComment;
   }
 
   // 댓글 수정
   async updateComment(
-    id: number,
+    commentId: number,
     updateCommentDto: UpdateCommentDto,
-    boardId: number,
-    card_id: number,
+    loginUserId: number,
   ) {
-    const existBoard = await this.boardService.getBoardById(boardId);
-    if (!existBoard) {
-      throw new NotFoundException('보드가 존재하지 않습니다.');
-    }
-    const existCard = await this.cardService.getCard(card_id);
-    if (!existCard) {
-      throw new NotFoundException('카드가 존재하지 않습니다.');
-    }
     const existComment = await this.commentRepository.findOne({
-      where: { id, user: { id } },
+      where: { id: commentId },
     });
     if (!existComment) {
       throw new NotFoundException('댓글이 존재하지 않습니다.');
     }
-    await this.commentRepository.update({ id }, updateCommentDto);
-    return this.getComment(id, boardId, card_id);
+    const userId = await existComment.user_id;
+    if (userId !== loginUserId) {
+      throw new ForbiddenException('권한이 존재하지 않습니다.');
+    }
+    await this.commentRepository.update({ id: commentId }, updateCommentDto);
+    return existComment;
   }
 
   // 댓글 삭제
-  async removeComment(id: number, boardId: number, card_id: number) {
+  async removeComment(commentId: number, loginUserId: number) {
     const existComment = await this.commentRepository.findOne({
-      where: { id },
+      where: { id: commentId },
     });
     if (!existComment) {
       throw new NotFoundException('댓글이 존재하지 않습니다.');
     }
-    const existBoard = await this.boardService.getBoardById(boardId);
-    if (!existBoard) {
-      throw new NotFoundException('보드가 존재하지 않습니다.');
+    const userId = await existComment.user_id;
+    if (userId !== loginUserId) {
+      throw new ForbiddenException('권한이 존재하지 않습니다.');
     }
-    const existCard = await this.cardService.getCard(card_id);
-    if (!existCard) {
-      throw new NotFoundException('카드가 존재하지 않습니다.');
-    }
-    await this.commentRepository.delete({ id });
-    return this.getComments(boardId, card_id);
+    await this.commentRepository.delete({ id: commentId });
   }
 }

@@ -23,33 +23,63 @@ export class BoardService {
   ) {}
 
   // 새 보드 생성
-  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    userId: number,
+  ): Promise<Board> {
     const newBoard = this.boardRepository.create(createBoardDto);
-    await this.boardRepository.save(newBoard);
-    return newBoard;
+    const savedBoard = await this.boardRepository.save(newBoard);
+
+    // 생성한 사용자에게 관리자 권한 부여
+    const boardMember = this.boardMemberRepository.create({
+      user: { id: userId },
+      board: savedBoard,
+      is_host: true,
+    });
+    await this.boardMemberRepository.save(boardMember);
+
+    return savedBoard;
   }
 
-  // 전체 보드 목록 조회
-  async getAllBoards(): Promise<Board[]> {
-    return await this.boardRepository.find();
+  // 유저가 속한 전체 보드 목록 조회
+  async getAllBoards(userId: number): Promise<Board[]> {
+    const boardMembers = await this.boardMemberRepository.find({
+      where: { user: { id: userId } },
+      relations: ['board'],
+    });
+
+    return boardMembers.map((boardMember) => boardMember.board);
   }
 
   // ID를 기반으로 특정 보드 조회
   async getBoardById(id: number): Promise<Board> {
     const board = await this.boardRepository.findOneBy({ id });
     if (!board) {
-      throw new NotFoundException(`해당 보드를 찾을 수 없습니다.`);
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
     return board;
   }
 
   async updateBoard(
+    userId: number,
     id: number,
     updateBoardDto: CreateBoardDto,
   ): Promise<Board> {
-    const board = await this.boardRepository.findOneBy({ id });
+    const board = await this.boardRepository.findOne({
+      where: { id },
+      relations: ['boardMembers'],
+    });
+
+    const isUserHost = board.boardMembers.some(
+      (member) => member.user.id === userId && member.is_host,
+    );
+
+    if (!isUserHost) {
+      throw new UnauthorizedException('수정 권한이 없습니다.');
+    }
+
     if (!board) {
-      throw new NotFoundException(`해당 보드를 찾을 수 없습니다.`);
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
 
     Object.assign(board, updateBoardDto);
@@ -58,21 +88,46 @@ export class BoardService {
   }
 
   // 보드 삭제
-  async deleteBoard(id: number): Promise<void> {
+  async deleteBoard(
+    userId: number, // 사용자 ID 파라미터 추가
+    id: number,
+  ): Promise<void> {
+    const board = await this.boardRepository.findOne({
+      where: { id },
+      relations: ['boardMembers'],
+    });
+
+    const isUserHost = board.boardMembers.some(
+      (member) => member.user.id === userId && member.is_host,
+    );
+
+    if (!isUserHost) {
+      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    }
+
     const result = await this.boardRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(` 해당 보드를 찾을 수 없습니다.`);
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
   }
 
-  async invite(boardId: number, email: string, user: User) {
+  async invite(boardId: number, userId: number, email: string, user: User) {
     try {
+      const userInfoOnly: User = await this.getUserByEmail(user.email);
       const board: Board = await this.getBoardById(boardId);
       this.checkBoardExistence(board);
-      await this.checkUserIsHost(board, user);
+      await this.checkUserIsHost(board, userInfoOnly);
       const invitedUser: User = await this.getUserByEmail(email);
       this.checkUserExistence(invitedUser);
       await this.checkUserNotInBoard(invitedUser, board);
+
+      const isUserHost = board.boardMembers.some(
+        (member) => member.user.id === userId && member.is_host,
+      );
+      if (!isUserHost) {
+        throw new UnauthorizedException('초대 권한이 없습니다.');
+      }
+
       const result = await this.addUserToBoard(invitedUser, board);
       console.log(result.created_at);
     } catch (error) {
@@ -92,7 +147,7 @@ export class BoardService {
     user: User,
   ): Promise<BoardMember> {
     const result = await this.boardMemberRepository.findOne({
-      where: { board, user },
+      where: { user, board },
     });
 
     if (!result || result.is_host == false) {
@@ -134,5 +189,35 @@ export class BoardService {
 
     await this.boardMemberRepository.save(boardMember);
     return boardMember;
+  }
+
+  private async getBoardMemberByUserAndBoard(user: User, board: Board) {
+    return await this.boardMemberRepository.findOneBy({ user, board });
+  }
+
+  private async checkUserIsInvited(boardMember: BoardMember) {
+    if (!boardMember) {
+      throw new NotFoundException("You aren't invited in the board");
+    }
+  }
+
+  async joinBoard(boardId: number, user: User) {
+    try {
+      const userInfoOnly: User = await this.getUserByEmail(user.email);
+      const board: Board = await this.getBoardById(boardId);
+      const result: BoardMember = await this.getBoardMemberByUserAndBoard(
+        userInfoOnly,
+        board,
+      );
+      await this.checkUserIsInvited(result);
+      result.is_accept = true;
+      this.boardMemberRepository.save(result);
+      return {
+        code: 201,
+        message: `you join in the board id with ${board.id}`,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -14,10 +14,18 @@ import {
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { BoardMember } from './entities/board-member.entity';
+import { ResponseInterface } from 'src/response/interface/response.interface';
 
 @ApiTags('boards')
 @Controller('boards')
@@ -34,6 +42,7 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @ApiBody({ type: CreateBoardDto })
+  @ApiResponse({ type: Board })
   async createBoard(
     @Body() createBoardDto: CreateBoardDto,
     @Request() req,
@@ -52,6 +61,7 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get()
+  @ApiResponse({ type: BoardMember, isArray: true })
   async getAllBoards(@Request() req): Promise<Board[]> {
     return await this.boardService.getAllBoards(req.user.id);
   }
@@ -64,6 +74,7 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
+  @ApiResponse({ type: Board })
   async getBoardById(@Param('id') id: number): Promise<Board> {
     return await this.boardService.getBoardById(id);
   }
@@ -77,6 +88,7 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   @ApiBody({ type: CreateBoardDto })
+  @ApiResponse({ type: BoardMember })
   async updateBoard(
     @Param('id') id: number,
     @Body() updateBoardDto: CreateBoardDto,
@@ -112,6 +124,7 @@ export class BoardController {
     },
   })
   @UsePipes(ValidationPipe)
+  @ApiResponse({ type: ResponseInterface })
   async invite(
     @Param('boardId') boardId: number,
     @Body('email') email: string,
@@ -128,6 +141,7 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/join/:boardId')
   @UsePipes(ValidationPipe)
+  @ApiResponse({ type: ResponseInterface })
   async joinBoard(@Param('boardId') boardId: number, @GetUser() user: User) {
     return await this.boardService.joinBoard(boardId, user);
   }

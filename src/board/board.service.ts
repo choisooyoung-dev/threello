@@ -117,7 +117,6 @@ export class BoardService {
       user,
       board,
     });
-
     if (boardMember) {
       throw new ConflictException(
         'the user you invite is already in the board',

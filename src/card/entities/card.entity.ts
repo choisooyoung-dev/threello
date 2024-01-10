@@ -15,6 +15,7 @@ import { Color } from 'src/common/types/color.type';
 import { CardWorker } from './card.worker.entity';
 import { DeadlineStatus } from '../types/deadline.status.type';
 import { CheckList } from '../../checklist/entities/checklist.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('cards')
 export class Card {
@@ -29,6 +30,7 @@ export class Card {
   @IsNotEmpty({ message: '카드 제목을 입력해주세요.' })
   @IsString()
   @Column()
+  @ApiProperty({ description: '카드 제목', example: 'cardTitle' })
   title: string;
 
   @IsOptional()

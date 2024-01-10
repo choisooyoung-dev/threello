@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { CreateCardDto } from './create-card.dto';
 import { IsOptional, IsString } from 'class-validator';
 import { Column } from 'typeorm';

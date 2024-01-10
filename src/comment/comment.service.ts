@@ -19,7 +19,7 @@ export class CommentService {
   ) {}
 
   // 댓글 생성
-  async createComment(createCommentDto: CreateCommentDto, board_id) {
+  async createComment(createCommentDto: CreateCommentDto, board_id: number) {
     const { content } = createCommentDto;
     if (!content) {
       throw new BadRequestException('댓글을 입력해 주세요.');
@@ -28,12 +28,15 @@ export class CommentService {
     if (!existBoard) {
       throw new NotFoundException('보드가 존재하지 않습니다.');
     }
-    const newComment = await this.commentRepository.save({ content });
+    const newComment = await this.commentRepository.save({
+      content,
+      user: { id },
+    });
     return newComment;
   }
 
   // 댓글 조회
-  async getComments(board_id) {
+  async getComments(board_id: number) {
     const existBoard = await this.boardService.getBoardById(board_id);
     if (!existBoard) {
       throw new NotFoundException('보드가 존재하지 않습니다.');
@@ -45,12 +48,14 @@ export class CommentService {
   }
 
   // 특정 댓글 조회
-  async getComment(id: number, board_id) {
+  async getComment(id: number, board_id: number) {
     const existBoard = await this.boardService.getBoardById(board_id);
     if (!existBoard) {
       throw new NotFoundException('보드가 존재하지 않습니다.');
     }
-    const getComment = await this.commentRepository.findOneBy({ id });
+    const getComment = await this.commentRepository.findOne({
+      where: { id: board_id },
+    });
     return getComment;
   }
 
@@ -58,9 +63,11 @@ export class CommentService {
   async updateComment(
     id: number,
     updateCommentDto: UpdateCommentDto,
-    board_id,
+    board_id: number,
   ) {
-    const existComment = await this.commentRepository.findOneBy({ id });
+    const existComment = await this.commentRepository.findOne({
+      where: { id: board_id },
+    });
     if (!existComment) {
       throw new NotFoundException('댓글이 존재하지 않습니다.');
     }
@@ -73,8 +80,10 @@ export class CommentService {
   }
 
   // 댓글 삭제
-  async removeComment(id: number, board_id) {
-    const existComment = await this.commentRepository.findOneBy({ id });
+  async removeComment(id: number, board_id: number) {
+    const existComment = await this.commentRepository.findOne({
+      where: { id: board_id },
+    });
     if (!existComment) {
       throw new NotFoundException('댓글이 존재하지 않습니다.');
     }

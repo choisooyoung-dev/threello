@@ -13,6 +13,8 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { BoardService } from 'src/board/board.service';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @ApiTags('comment')
 @Controller(':board_id/comments')
@@ -27,10 +29,13 @@ export class CommentController {
   async createComment(
     @Param('board_id') board_id: number,
     @Body() createCommentDto: CreateCommentDto,
+    @GetUser() user: User,
   ) {
+    const { id } = user;
     const comment = await this.commentService.createComment(
       createCommentDto,
       board_id,
+      id,
     );
     return {
       statusCode: HttpStatus.CREATED,

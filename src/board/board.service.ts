@@ -113,9 +113,10 @@ export class BoardService {
 
   async invite(boardId: number, userId: number, email: string, user: User) {
     try {
+      const userInfoOnly: User = await this.getUserByEmail(user.email);
       const board: Board = await this.getBoardById(boardId);
       this.checkBoardExistence(board);
-      await this.checkUserIsHost(board, user);
+      await this.checkUserIsHost(board, userInfoOnly);
       const invitedUser: User = await this.getUserByEmail(email);
       this.checkUserExistence(invitedUser);
       await this.checkUserNotInBoard(invitedUser, board);
@@ -146,7 +147,7 @@ export class BoardService {
     user: User,
   ): Promise<BoardMember> {
     const result = await this.boardMemberRepository.findOne({
-      where: { board, user },
+      where: { user, board },
     });
 
     if (!result || result.is_host == false) {
@@ -188,5 +189,35 @@ export class BoardService {
 
     await this.boardMemberRepository.save(boardMember);
     return boardMember;
+  }
+
+  private async getBoardMemberByUserAndBoard(user: User, board: Board) {
+    return await this.boardMemberRepository.findOneBy({ user, board });
+  }
+
+  private async checkUserIsInvited(boardMember: BoardMember) {
+    if (!boardMember) {
+      throw new NotFoundException("You aren't invited in the board");
+    }
+  }
+
+  async joinBoard(boardId: number, user: User) {
+    try {
+      const userInfoOnly: User = await this.getUserByEmail(user.email);
+      const board: Board = await this.getBoardById(boardId);
+      const result: BoardMember = await this.getBoardMemberByUserAndBoard(
+        userInfoOnly,
+        board,
+      );
+      await this.checkUserIsInvited(result);
+      result.is_accept = true;
+      this.boardMemberRepository.save(result);
+      return {
+        code: 201,
+        message: `you join in the board id with ${board.id}`,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }

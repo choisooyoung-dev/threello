@@ -1,8 +1,7 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
-import { CreateCheckItemDto } from './create-check-item.dto';
 
-export class UpdateCheckItemDto extends PartialType(CreateCheckItemDto) {
+export class UpdateCheckItemDto {
   @IsString()
   @IsNotEmpty({ message: '컨텐츠를 입력해주세요.' })
   @ApiProperty({ description: '체크 아이템 내용', example: 'checkItemContent' })

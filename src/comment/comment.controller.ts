@@ -11,7 +11,7 @@ import {
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BoardService } from 'src/board/board.service';
 
 @ApiTags('comment')
@@ -23,6 +23,10 @@ export class CommentController {
   ) {}
 
   // 댓글 생성
+  @ApiOperation({
+    summary: '댓글 생성 API',
+    description: '댓글을 생성 합니다.',
+  })
   @Post()
   async createComment(
     @Param('board_id') board_id: number,
@@ -40,6 +44,10 @@ export class CommentController {
   }
 
   // 댓글 조회
+  @ApiOperation({
+    summary: '전체 댓글 조회 API',
+    description: '댓글을 모두 조회합니다.',
+  })
   @Get()
   async getComments(@Param('board_id') board_id: number) {
     const comments = await this.commentService.getComments(board_id);
@@ -51,6 +59,10 @@ export class CommentController {
   }
 
   // 특정 댓글 가져오기
+  @ApiOperation({
+    summary: '특정 댓글 조회 API',
+    description: '특정 댓글을 조회합니다.',
+  })
   @Get(':id')
   async getComment(
     @Param('board_id') board_id: number,
@@ -65,6 +77,10 @@ export class CommentController {
   }
 
   // 댓글 수정
+  @ApiOperation({
+    summary: '댓글 수정 API',
+    description: '댓글을 수정합니다.',
+  })
   @Patch(':id')
   async updateComment(
     @Param('board_id') board_id: number,
@@ -84,6 +100,10 @@ export class CommentController {
   }
 
   // 댓글 삭제
+  @ApiOperation({
+    summary: '댓글 삭제 API',
+    description: '댓글을 삭제합니다.',
+  })
   @Delete(':id')
   removeComment(@Param('board_id') board_id: number, @Param('id') id: string) {
     const deleteComment = this.commentService.removeComment(+id, board_id);

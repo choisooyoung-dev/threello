@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
-import { DeadlineStatus } from './types/deadline.status.type';
 import { Card } from 'src/card/entities/card.entity';
 
 @Injectable()

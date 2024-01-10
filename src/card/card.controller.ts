@@ -6,15 +6,19 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @ApiTags('card')
+@UseGuards(AuthGuard('jwt'))
 @Controller('/:boardId/card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
@@ -22,7 +26,9 @@ export class CardController {
   // 카드 생성
   @Post('/create')
   async create(
-    @Body('list_id') list_id: number,
+    @GetUser()
+    @Body('list_id')
+    list_id: number,
     @Body() createCardDto: CreateCardDto,
     @Body('dueTimeValue') dueTimeValue: string,
     @Body('dueDateValue') dueDateValue: string,

@@ -8,18 +8,27 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CheckList } from '../../checklist/entities/checklist.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('check_item')
 export class CheckItem {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty({
+    description: '체크리스트아이디(참조)',
+    example: '1',
+  })
   @Column()
   checklist_id: number;
 
   @Column()
   lists_order: number;
 
+  @ApiProperty({
+    description: '체크리스트콘텐츠',
+    example: 'test content',
+  })
   @Column()
   content: string;
 

@@ -6,14 +6,14 @@ import {
   Patch,
   Param,
   Delete,
-  BadRequestException,
 } from '@nestjs/common';
 import { CheckItemService } from './check_item.service';
 import { CreateCheckItemDto } from './dto/create-check-item.dto';
 import { UpdateCheckItemDto } from './dto/update-check-item.dto';
 import { CheckListService } from '../checklist/checklist.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('check-item')
 @Controller('check-item')
 export class CheckItemController {
@@ -26,6 +26,7 @@ export class CheckItemController {
     summary: '체크아이템 생성 API',
     description: '체크아이템을 생성합니다.',
   })
+  @ApiBody({ type: CreateCheckItemDto })
   @Post()
   async create(@Body() createCheckItemDto: CreateCheckItemDto) {
     await this.checkListService.findOne(createCheckItemDto.checklist_id);
@@ -60,6 +61,7 @@ export class CheckItemController {
     summary: '체크아이템 수정 API',
     description: '체크아이템을 수정합니다.',
   })
+  @ApiBody({ type: UpdateCheckItemDto })
   @Patch(':itemId')
   async update(
     @Param('itemId') id: number,

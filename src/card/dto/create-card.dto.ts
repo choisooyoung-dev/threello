@@ -16,11 +16,9 @@ export class CreateCardDto extends PickType(Card, [
   @IsNotEmpty()
   @ApiProperty({ description: '리스트 아이디', example: undefined })
   list_id: number;
-  @IsNotEmpty()
-  @ApiProperty({ description: '카드 마감시간', example: undefined })
+  @IsOptional()
   dueTimeValue: string;
 
-  @IsNotEmpty()
-  @ApiProperty({ description: '카드 마감기한', example: undefined })
+  @IsOptional()
   dueDateValue: string;
 }

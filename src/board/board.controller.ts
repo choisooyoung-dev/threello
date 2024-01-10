@@ -73,4 +73,14 @@ export class BoardController {
   ) {
     return await this.boardService.invite(boardId, email, user);
   }
+
+  //초대 수락을 하려면 어떻게 해야하지
+  //일단 초대방에 대해 수락을 해야겠지
+  //이걸 보내면 초대 수락이라고 생각하자.
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/join/:boardId')
+  @UsePipes(ValidationPipe)
+  async joinBoard(@Param('boardId') boardId: number, @GetUser() user: User) {
+    return await this.boardService.joinBoard(boardId, user);
+  }
 }

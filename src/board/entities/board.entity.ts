@@ -26,12 +26,6 @@ export class Board {
   @Column({ type: 'enum', enum: Color, nullable: true })
   color?: string;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
   @OneToMany(() => List, (list) => list.board)
   list: List[];
 

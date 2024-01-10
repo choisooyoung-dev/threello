@@ -45,6 +45,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/myinfo')
   async getMyInfo(@GetUser() user: User) {
+    console.log(user);
     return {
       code: 200,
       message: 'you successfully get your profile',

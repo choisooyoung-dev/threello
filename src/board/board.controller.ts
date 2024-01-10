@@ -8,12 +8,16 @@ import {
   Delete,
   UseGuards,
   Request,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @ApiTags('boards')
 @Controller('boards')
@@ -64,5 +68,16 @@ export class BoardController {
   @Delete(':id')
   async deleteBoard(@Param('id') id: number, @Request() req): Promise<void> {
     await this.boardService.deleteBoard(req.user.id, id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/:boardId')
+  @UsePipes(ValidationPipe)
+  async invite(
+    @Param('boardId') boardId: number,
+    @Body('email') email: string,
+    @GetUser() user: User,
+  ) {
+    return await this.boardService.invite(boardId, user.id, email, user);
   }
 }

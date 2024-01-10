@@ -22,7 +22,6 @@ import { CheckItemModule } from './check_item/check_item.module';
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     UserModule,
     CardModule,
-    BoardModule,
     CommentModule,
     ListModule,
     ChecklistModule,

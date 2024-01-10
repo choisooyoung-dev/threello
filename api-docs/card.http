@@ -40,13 +40,8 @@ PATCH {{host}}/card/4/1
 
 ### 
 # UPDATE CARD LIST ORDER (현재 카드아이디 값/옮기고 싶은 위치의 list 아이디 값/옮기고 싶은 위치의 카드 order 값)
-<<<<<<< HEAD
-PATCH {{host}}/card/4/1/2/1
- 
-=======
 PATCH {{host}}/card/3/1/2/1
 
->>>>>>> 955b2bf8417e364444cdea2464b97280dfb5960b
 ### 
 # DELETE CARD
 DELETE {{host}}/card/delete/4

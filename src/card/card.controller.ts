@@ -31,14 +31,14 @@ export class CardController {
   })
   @ApiBody({ type: CreateCardDto })
   @Post('/create')
-  async create(@GetUser() user: User, @Body() createCardDto: CreateCardDto) {
+  async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
       createCardDto.list_id,
       createCardDto,
       createCardDto.dueDateValue,
       createCardDto.dueTimeValue,
     );
-    return { data, user };
+    return data;
   }
 
   // 카드 삭제

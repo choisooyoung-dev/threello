@@ -5,7 +5,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
+import { DeadlineStatus } from './types/deadline.status.type';
 import { Card } from 'src/card/entities/card.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class CardService {
@@ -22,13 +24,15 @@ export class CardService {
     createCardDto: CreateCardDto,
     dueDateValue: string,
     dueTimeValue: string,
+    user: User,
   ) {
-    const { title, color, content } = createCardDto;
+    const { id } = user;
+    if (id) const { title, color, content } = createCardDto;
 
-    const getAllCards = await this.cardRepository.find();
+    // const getAllCards = await this.cardRepository.find();
     //  console.log(allGetCard);
 
-    const cardOrder = getAllCards.length + 1;
+    const cardOrder = Number(await this.count(list_id)) + 1;
 
     // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
@@ -68,8 +72,13 @@ export class CardService {
     // 마감기한 상태가 uncomplete면?
     if (deadlineStatus === 0) {
       const nowDate = new Date();
+      // console.log('nowDate ===> ', nowDate);
 
-      const timeDifference = dueDate.getTime() - nowDate.getTime();
+      const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
+      console.log('convertDueDate: ', convertDueDate);
+
+      const timeDifference = convertDueDate - nowDate.getHours();
+      console.log('timeDifference: ', timeDifference);
 
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
       console.log('hoursDifference: ', hoursDifference);
@@ -206,33 +215,39 @@ export class CardService {
   }
 
   // 리스트간 카드 이동
+  // 1리스트에서 2리스트로 옮겨가는 과정
+  // 1리스스 해당 카드를 불러와서 컨텐츠를 미리 변수화
+  // 1리스트에 해당 카드를 삭제
+  // 2리스트에서 컨텐츠 내용과 똑같은 카드하나를 생성
+  // 지우고 다시만들기 = 이동
+  // 2리스트에서 생성이 잘됐으면 맨 뒤에 있을거임
+  // 그거를 cardTo로 다시 이동메서드 수행
   async moveCardBlockBeteweenList(
     cardId: number,
-    listId: number,
     listTo: number,
     cardTo: number,
+    cardCount: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       // 옮기기 전 list_id 값의 속한 카드들 정렬
-      const existingCard = await this.cardRepository.find({
-        where: { list: { id: listId } },
-        select: ['list'],
-      });
+      const card = await this.cardRepository.findOneBy({ id: cardId });
+      if (!card) throw new NotFoundException('해당하는 카드가 없습니다.');
+      const { title, content, color, due_date, deadline_status } = card;
+      await this.remove(cardId);
+      const createCardDto = {
+        title,
+        content,
+        color,
+        due_date,
+        deadline_status,
+      };
+      // await this.create( listTo, createCardDto, );
 
-      console.log(existingCard.length);
-
-      if (!existingCard)
-        throw new NotFoundException('해당하는 카드가 없습니다.');
-
-      const moveCard = await this.cardRepository.findOne({
-        where: { id: cardId },
-      });
-
-      // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
-      await this.moveCardBlock(cardId, existingCard.length);
+      // // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
+      // await this.moveCardBlock(cardId);
 
       // 리스트 값 바꾸기
       await this.cardRepository.update(cardId, {

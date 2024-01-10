@@ -13,7 +13,6 @@ import {
 import { List } from '../../list/entities/list.entity';
 import { Color } from 'src/common/types/color.type';
 import { CardWorker } from './card.worker.entity';
-import { Comment } from 'src/comment/entities/comment.entity';
 import { DeadlineStatus } from '../types/deadline.status.type';
 import { CheckList } from '../../checklist/entities/checklist.entity';
 
@@ -55,9 +54,6 @@ export class Card {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @OneToMany(() => Comment, (comment) => comment.card)
-  comments: Comment[];
 
   @OneToMany(() => CardWorker, (cardWorker) => cardWorker.card)
   card_workers: CardWorker[];

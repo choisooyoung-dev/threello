@@ -71,7 +71,8 @@ export class CardService {
 
       const timeDifference = dueDate.getTime() - nowDate.getTime();
 
-      const hoursDifference = timeDifference / (1000 * 60 * 60);
+      const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
+      console.log('hoursDifference: ', hoursDifference);
 
       let deadlineStatusWithTime: string = '';
 

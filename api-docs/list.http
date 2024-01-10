@@ -169,7 +169,7 @@ Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 {
-  "card_id": 5,
+  "card_id": 6,
   "title": "test"
 }
 
@@ -199,5 +199,51 @@ Content-Type: application/json
 
 ### 특정 예약 삭제
 DELETE {{host}}/api/1/checklist/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+// 체크아이템
+### 등록
+POST {{host}}/api/1/check-item
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "checklist_id": 3,
+  "content": "test"
+}
+
+### 리스트보기
+GET {{host}}/api/1/check-item/all/2
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 리스트 보기
+GET {{host}}/api/1/check-item/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 타이틀수정
+PATCH {{host}}/api/1/check-item/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "content": "test22",
+  "is_done": true
+}
+
+### 특정 예약 순서수정
+PATCH {{host}}/api/1/check-item/35/3
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 특정 예약 삭제
+DELETE {{host}}/api/1/check-item/35
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+### 옆집이사
+PATCH {{host}}/api/1/check-item/46/2/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json

@@ -14,7 +14,7 @@ import {
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
@@ -26,6 +26,11 @@ export class BoardController {
 
   // 새 보드 생성
   // 칸반보드 만들시 바로 칸반보드사용유저 만들어서 호스트로 등록해두기
+  @ApiOperation({
+    summary: '보드 만들기 API',
+    description: '보드를 만듭니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async createBoard(
@@ -39,6 +44,11 @@ export class BoardController {
   //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
 
   // 유저가 속한 전체 보드 목록 조회
+  @ApiOperation({
+    summary: '내 모든 보드 조회 API',
+    description: '나의 모든 보드를 조회합니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAllBoards(@Request() req): Promise<Board[]> {
@@ -46,6 +56,11 @@ export class BoardController {
   }
 
   // ID를 기반으로 특정 보드 조회
+  @ApiOperation({
+    summary: '특정 보드 조회 API',
+    description: '보드 ID를 통해 특정 보드를 조회합니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async getBoardById(@Param('id') id: number): Promise<Board> {
@@ -53,6 +68,11 @@ export class BoardController {
   }
 
   // 보드 수정도 호스트만 가능하게
+  @ApiOperation({
+    summary: '보드 수정 API',
+    description: '보드를 업데이트 합니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   async updateBoard(
@@ -64,14 +84,24 @@ export class BoardController {
   }
 
   // 보드 삭제 고쳐야 한다. 이건 누구나 지울 수 있다.
+  @ApiOperation({
+    summary: '보드 삭제 API',
+    description: 'ID에 해당하는 보드를 삭제합니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async deleteBoard(@Param('id') id: number, @Request() req): Promise<void> {
     await this.boardService.deleteBoard(req.user.id, id);
   }
 
+  @ApiOperation({
+    summary: '보드에 멤버 초대 API',
+    description: '보드에 해당 멤버를 초대합니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @Post('/:boardId')
+  @Post('/invite/:boardId')
   @UsePipes(ValidationPipe)
   async invite(
     @Param('boardId') boardId: number,
@@ -81,9 +111,11 @@ export class BoardController {
     return await this.boardService.invite(boardId, user.id, email, user);
   }
 
-  //초대 수락을 하려면 어떻게 해야하지
-  //일단 초대방에 대해 수락을 해야겠지
-  //이걸 보내면 초대 수락이라고 생각하자.
+  @ApiOperation({
+    summary: '초대 수락 API',
+    description: '초대 받은 보드에 초대를 수락합니다.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('/join/:boardId')
   @UsePipes(ValidationPipe)

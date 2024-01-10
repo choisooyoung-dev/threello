@@ -56,7 +56,8 @@ export class CardService {
   async getCard(id: number) {
     const getCard = await this.cardRepository.findOneBy({ id });
 
-    let dueDate = getCard.due_date;
+    const dueDate = getCard.due_date;
+    console.log('dueDate ===> ', dueDate);
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -71,10 +72,13 @@ export class CardService {
       // console.log('nowDate ===> ', nowDate);
 
       const convertDueDate = dueDate.setHours(dueDate.getHours() + 9);
+      console.log('convertDueDate: ', convertDueDate);
 
-      const timeDifference = convertDueDate - nowDate.getTime();
+      const timeDifference = convertDueDate - nowDate.getHours();
+      console.log('timeDifference: ', timeDifference);
 
-      const hoursDifference = timeDifference / (1000 * 60 * 60);
+      const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
+      console.log('hoursDifference: ', hoursDifference);
 
       let deadlineStatusWithTime: string = '';
 
@@ -233,18 +237,13 @@ export class CardService {
         where: { id: cardId },
       });
 
-      // 카드 옮기기
-      const currentCards = await this.moveCardBlock(
-        cardId,
-        existingCard.length,
-      );
+      // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
+      await this.moveCardBlock(cardId, existingCard.length);
 
       // 리스트 값 바꾸기
-      const chageList = await this.cardRepository.update(cardId, {
+      await this.cardRepository.update(cardId, {
         list: { id: listTo },
       });
-
-      this.moveCardBlock(cardId, cardTo);
 
       await queryRunner.commitTransaction();
       return this.getCard(cardId);

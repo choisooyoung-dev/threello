@@ -78,16 +78,16 @@ export class BoardService {
       relations: ['boardMembers', 'boardMembers.user'],
     });
 
+    if (!board) {
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
+    }
+
     const isUserHost = board.boardMembers.some(
       (member) => member.user.id === userId && member.is_host,
     );
 
     if (!isUserHost) {
       throw new UnauthorizedException('수정 권한이 없습니다.');
-    }
-
-    if (!board) {
-      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
 
     Object.assign(board, updateBoardDto);

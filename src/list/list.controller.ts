@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  BadRequestException,
   UseGuards,
 } from '@nestjs/common';
 import { ListService } from './list.service';
@@ -24,7 +23,7 @@ import { ResponseInterface } from 'src/response/interface/response.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { BoardMemberGuard } from '../auth/guard/board-member.guard';
 
-@ApiTags('list')
+@ApiTags('3. list')
 @Controller('/:boardId/list')
 export class ListController {
   // 하단에 board_users 서비스 권한이 추가되어야함

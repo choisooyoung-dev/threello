@@ -17,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { BoardMemberGuard } from '../auth/guard/board-member.guard';
 
 @ApiBearerAuth()
-@ApiTags('/:boardId/check-item')
+@ApiTags('7. /:boardId/check-item')
 @Controller('check-item')
 export class CheckItemController {
   constructor(

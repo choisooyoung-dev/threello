@@ -20,7 +20,7 @@ import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 
-@ApiTags('boards')
+@ApiTags('2. boards')
 @Controller('boards')
 export class BoardController {
   constructor(private boardService: BoardService) {}

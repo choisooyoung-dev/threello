@@ -20,7 +20,13 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('api-docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // 새로고침 시에도 JWT 유지
+      tagsSorter: 'alpha', // API 그룹 정렬 알파뱃 순
+      operationsSorter: 'alpha', // API 그룹 내 정렬 알파뱃 순
+    },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

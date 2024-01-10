@@ -14,7 +14,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BoardService } from 'src/board/board.service';
 
-@ApiTags('comment')
+@ApiTags('5. comment')
 @Controller(':board_id/comments')
 export class CommentController {
   constructor(

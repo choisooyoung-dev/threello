@@ -50,6 +50,15 @@ Content-Type: application/json
   "color": "blue"
 }
 
+### 보드 초대
+POST {{host}}/api/boards/invite/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "email": "test2@test.com"
+}
+
 ### 전체 보드 목록 조회
 GET {{host}}/api/boards
 Authorization: Bearer {{Token}}

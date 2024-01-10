@@ -8,9 +8,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Card } from 'src/card/entities/card.entity';
 import { User } from 'src/user/entities/user.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { Board } from 'src/board/entities/board.entity';
 
 @Entity({ name: 'comments' })
 export class Comment {
@@ -18,7 +18,7 @@ export class Comment {
   id: number;
 
   @Column()
-  card_id: number;
+  board_id: number;
 
   @Column()
   user_id: number;
@@ -38,7 +38,7 @@ export class Comment {
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   user: User;
 
-  @ManyToOne(() => Card, (card) => card.comments, { onDelete: 'CASCADE' })
-  @JoinColumn([{ name: 'card_id', referencedColumnName: 'id' }])
-  card: Card;
+  @ManyToOne(() => Board, (board) => board.comments, { onDelete: 'CASCADE' })
+  @JoinColumn([{ name: 'board_id', referencedColumnName: 'id' }])
+  board: Board;
 }

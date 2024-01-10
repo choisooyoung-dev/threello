@@ -14,10 +14,19 @@ import {
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { BoardMember } from './entities/board-member.entity';
+import { ResponseInterface } from 'src/response/interface/response.interface';
+import { BoardMemberGuard } from 'src/auth/guard/board-member.guard';
 
 @ApiTags('boards')
 @Controller('boards')
@@ -34,6 +43,7 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @ApiBody({ type: CreateBoardDto })
+  @ApiResponse({ type: Board })
   async createBoard(
     @Body() createBoardDto: CreateBoardDto,
     @Request() req,
@@ -52,6 +62,7 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get()
+  @ApiResponse({ type: BoardMember, isArray: true })
   async getAllBoards(@Request() req): Promise<Board[]> {
     return await this.boardService.getAllBoards(req.user.id);
   }
@@ -64,6 +75,7 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
+  @ApiResponse({ type: Board })
   async getBoardById(@Param('id') id: number): Promise<Board> {
     return await this.boardService.getBoardById(id);
   }
@@ -74,15 +86,16 @@ export class BoardController {
     description: '보드를 업데이트 합니다.',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':id')
   @ApiBody({ type: CreateBoardDto })
+  @ApiResponse({ type: BoardMember })
   async updateBoard(
     @Param('id') id: number,
     @Body() updateBoardDto: CreateBoardDto,
-    @Request() req,
+    @GetUser() user: User,
   ): Promise<Board> {
-    return await this.boardService.updateBoard(req.user.id, id, updateBoardDto);
+    return await this.boardService.updateBoard(user.id, id, updateBoardDto);
   }
 
   // 보드 삭제 고쳐야 한다. 이건 누구나 지울 수 있다.
@@ -91,10 +104,13 @@ export class BoardController {
     description: 'ID에 해당하는 보드를 삭제합니다.',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':id')
-  async deleteBoard(@Param('id') id: number, @Request() req): Promise<void> {
-    await this.boardService.deleteBoard(req.user.id, id);
+  async deleteBoard(
+    @Param('id') id: number,
+    @GetUser() user: User,
+  ): Promise<void> {
+    await this.boardService.deleteBoard(user.id, id);
   }
 
   @ApiOperation({
@@ -112,6 +128,7 @@ export class BoardController {
     },
   })
   @UsePipes(ValidationPipe)
+  @ApiResponse({ type: ResponseInterface })
   async invite(
     @Param('boardId') boardId: number,
     @Body('email') email: string,
@@ -128,6 +145,7 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/join/:boardId')
   @UsePipes(ValidationPipe)
+  @ApiResponse({ type: ResponseInterface })
   async joinBoard(@Param('boardId') boardId: number, @GetUser() user: User) {
     return await this.boardService.joinBoard(boardId, user);
   }

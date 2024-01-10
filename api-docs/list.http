@@ -7,8 +7,8 @@ POST {{host}}/api/user/signup
 Content-Type: application/json
 
 {
-  "email": "test@test.com",
-  "nick": "test",
+  "email": "test2@test.com",
+  "nick": "test2",
   "password": "1q2w3e4r1234",
   "passwordConfirm": "1q2w3e4r1234"
 }
@@ -22,6 +22,17 @@ Content-Type: application/json
   "email": "test@test.com",
   "password": "1q2w3e4r1234"
 }
+
+### 로그인2
+# @name login
+POST {{host}}/api/user/signin
+Content-Type: application/json
+
+{
+  "email": "test2@test.com",
+  "password": "1q2w3e4r1234"
+}
+
 
 ### 내 정보 조회
 GET {{host}}/api/user/myinfo
@@ -62,21 +73,22 @@ DELETE {{host}}/boards/1
 
 // 리스트 테스트
 ### 리스트등록
-POST {{host}}/api/list
+POST {{host}}/api/5/list
+Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 {
-  "boards_id": 1,
+  "boards_id": 5,
   "title": "Done"
 }
 
 ### 리스트보기
-GET {{host}}/api/list/all/1
+GET {{host}}/api/1/list/all/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 ### 특정 리스트 보기
-GET {{host}}/api/list/1
+GET {{host}}/api/1/list/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 
@@ -118,11 +130,11 @@ Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 {
-  "content": "테스트 댓글 작성"
+  "content": "더미 댓글 작성"
 }
 
 ### 댓글 조회
-GET {{host}}/api/1/2/comments/1
+GET {{host}}/api/1/2/comments
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 
@@ -137,6 +149,6 @@ Content-Type: application/json
 }
 
 ### 댓글 삭제
-DELETE {{host}}/api/1/2/comments/1
+DELETE {{host}}/api/1/2/comments/6
 Authorization: Bearer {{Token}}
 Content-Type: application/json

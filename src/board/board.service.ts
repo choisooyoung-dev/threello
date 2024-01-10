@@ -75,8 +75,12 @@ export class BoardService {
   ): Promise<Board> {
     const board = await this.boardRepository.findOne({
       where: { id },
-      relations: ['boardMembers'],
+      relations: ['boardMembers', 'boardMembers.user'],
     });
+
+    if (!board) {
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
+    }
 
     const isUserHost = board.boardMembers.some(
       (member) => member.user.id === userId && member.is_host,
@@ -84,10 +88,6 @@ export class BoardService {
 
     if (!isUserHost) {
       throw new UnauthorizedException('수정 권한이 없습니다.');
-    }
-
-    if (!board) {
-      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
     }
 
     Object.assign(board, updateBoardDto);
@@ -102,8 +102,12 @@ export class BoardService {
   ): Promise<void> {
     const board = await this.boardRepository.findOne({
       where: { id },
-      relations: ['boardMembers'],
+      relations: ['boardMembers', 'boardMembers.user'],
     });
+
+    if (!board) {
+      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
+    }
 
     const isUserHost = board.boardMembers.some(
       (member) => member.user.id === userId && member.is_host,
@@ -113,12 +117,11 @@ export class BoardService {
       throw new UnauthorizedException('삭제 권한이 없습니다.');
     }
 
-    const result = await this.boardRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException('해당 보드를 찾을 수 없습니다.');
-    }
+    await this.boardMemberRepository.delete({ board: { id } });
+    await this.boardRepository.delete(id);
   }
 
+  // 보드 초대
   async invite(boardId: number, userId: number, email: string, user: User) {
     try {
       const userInfoOnly: User = await this.getUserByEmail(user.email);

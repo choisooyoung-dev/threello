@@ -125,7 +125,10 @@ export class BoardService {
   async invite(boardId: number, userId: number, email: string, user: User) {
     try {
       const userInfoOnly: User = await this.getUserByEmail(user.email);
-      const board: Board = await this.getBoardById(boardId);
+      const board = await this.boardRepository.findOne({
+        where: { id: boardId },
+        relations: ['boardMembers', 'boardMembers.user'],
+      });
       this.checkBoardExistence(board);
       await this.checkUserIsHost(board, userInfoOnly);
       const invitedUser: User = await this.getUserByEmail(email);
@@ -158,7 +161,7 @@ export class BoardService {
     user: User,
   ): Promise<BoardMember> {
     const result = await this.boardMemberRepository.findOne({
-      where: { user, board },
+      where: { userId: user.id, boardId: board.id },
     });
 
     if (!result || result.is_host == false) {

@@ -14,7 +14,7 @@ import {
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
@@ -33,6 +33,7 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Post()
+  @ApiBody({ type: CreateBoardDto })
   async createBoard(
     @Body() createBoardDto: CreateBoardDto,
     @Request() req,
@@ -75,6 +76,7 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
+  @ApiBody({ type: CreateBoardDto })
   async updateBoard(
     @Param('id') id: number,
     @Body() updateBoardDto: CreateBoardDto,
@@ -102,6 +104,13 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Post('/invite/:boardId')
+  @ApiBody({
+    schema: {
+      properties: {
+        email: { type: 'string', example: 'test123456@email.com' },
+      },
+    },
+  })
   @UsePipes(ValidationPipe)
   async invite(
     @Param('boardId') boardId: number,

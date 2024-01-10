@@ -12,6 +12,7 @@ import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { List } from 'src/list/entities/list.entity';
 
 @ApiTags('card')
 @Controller('card')

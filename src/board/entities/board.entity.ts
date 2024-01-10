@@ -1,15 +1,9 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { List } from '../../list/entities/list.entity';
 import { BoardMember } from './board-member.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
+import { Color } from 'src/common/types/color.type';
 
 @Entity('boards')
 export class Board {
@@ -23,7 +17,7 @@ export class Board {
 
   @IsOptional()
   @IsString()
-  @Column({ nullable: true })
+  @Column({ type: 'enum', enum: Color, nullable: true })
   color?: string;
 
   @OneToMany(() => List, (list) => list.board)

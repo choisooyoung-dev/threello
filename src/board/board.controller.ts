@@ -7,8 +7,9 @@ import {
   Patch,
   Delete,
   UseGuards,
-  ValidationPipe,
+  Request,
   UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -27,16 +28,21 @@ export class BoardController {
   // 칸반보드 만들시 바로 칸반보드사용유저 만들어서 호스트로 등록해두기
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  @UsePipes(ValidationPipe)
-  async createBoard(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
-    return await this.boardService.createBoard(createBoardDto);
+  async createBoard(
+    @Body() createBoardDto: CreateBoardDto,
+    @Request() req,
+  ): Promise<Board> {
+    return await this.boardService.createBoard(createBoardDto, req.user.id);
   }
 
-  // 전체 보드 목록 조회
+  //보드 내에서 초대가 가능하게
+  //초대를 어떻게 받아야할까? 백엔드만 있다. 초대를 어떻게 수락하지
+
+  // 유저가 속한 전체 보드 목록 조회
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getAllBoards(): Promise<Board[]> {
-    return await this.boardService.getAllBoards();
+  async getAllBoards(@Request() req): Promise<Board[]> {
+    return await this.boardService.getAllBoards(req.user.id);
   }
 
   // ID를 기반으로 특정 보드 조회
@@ -52,15 +58,16 @@ export class BoardController {
   async updateBoard(
     @Param('id') id: number,
     @Body() updateBoardDto: CreateBoardDto,
+    @Request() req,
   ): Promise<Board> {
-    return await this.boardService.updateBoard(id, updateBoardDto);
+    return await this.boardService.updateBoard(req.user.id, id, updateBoardDto);
   }
 
   // 보드 삭제 고쳐야 한다. 이건 누구나 지울 수 있다.
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async deleteBoard(@Param('id') id: number): Promise<void> {
-    await this.boardService.deleteBoard(id);
+  async deleteBoard(@Param('id') id: number, @Request() req): Promise<void> {
+    await this.boardService.deleteBoard(req.user.id, id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -71,6 +78,16 @@ export class BoardController {
     @Body('email') email: string,
     @GetUser() user: User,
   ) {
-    return await this.boardService.invite(boardId, email, user);
+    return await this.boardService.invite(boardId, user.id, email, user);
+  }
+
+  //초대 수락을 하려면 어떻게 해야하지
+  //일단 초대방에 대해 수락을 해야겠지
+  //이걸 보내면 초대 수락이라고 생각하자.
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/join/:boardId')
+  @UsePipes(ValidationPipe)
+  async joinBoard(@Param('boardId') boardId: number, @GetUser() user: User) {
+    return await this.boardService.joinBoard(boardId, user);
   }
 }

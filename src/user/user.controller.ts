@@ -44,7 +44,9 @@ export class UserController {
     description: '성공적으로 회원가입을 했습니다.',
     type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
   })
-  async signup(@Body() createUserDto: CreateUserDto) {
+  async signup(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<ResponseInterface> {
     if (createUserDto.password != createUserDto.passwordConfirm) {
       throw new BadRequestException(
         'your password not match your passwordConfirm',
@@ -69,7 +71,9 @@ export class UserController {
       },
     }, // 또는 응답 형식의 클래스 또는 타입
   })
-  async signin(@Body() signinUserDto: SigninUserDto) {
+  async signin(
+    @Body() signinUserDto: SigninUserDto,
+  ): Promise<{ accessToken: string }> {
     return await this.userService.signin(signinUserDto);
   }
 
@@ -95,8 +99,9 @@ export class UserController {
       },
     }, // 또는 응답 형식의 클래스 또는 타입
   })
-  async getMyInfo(@GetUser() user: User) {
-    console.log(user);
+  async getMyInfo(
+    @GetUser() user: User,
+  ): Promise<{ code: number; message: string; email: string; nick: string }> {
     return {
       code: 200,
       message: 'you successfully get your profile',
@@ -117,7 +122,7 @@ export class UserController {
     description: '성공적으로 회원탈퇴를 했습니다.',
     type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
   })
-  async withdraw(@GetUser() user: User) {
+  async withdraw(@GetUser() user: User): Promise<ResponseInterface> {
     return await this.userService.withdraw(user);
   }
 
@@ -141,7 +146,10 @@ export class UserController {
     type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
   })
   @Patch('/myinfo')
-  async patchMyInfo(@GetUser() user: User, @Body('nick') nick: string) {
+  async patchMyInfo(
+    @GetUser() user: User,
+    @Body('nick') nick: string,
+  ): Promise<ResponseInterface> {
     return await this.userService.patchMyInfo(user, nick);
   }
 }

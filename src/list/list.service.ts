@@ -44,7 +44,7 @@ export class ListService {
 
   // 리스트 옮기기(트랜잭션)
   async moveListBlock(id: number, to: number) {
-    console.log(to);
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

@@ -16,8 +16,8 @@ export class UpdateCardDto extends PartialType(CreateCardDto) {
   @IsString()
   content?: string;
 
-  @IsOptional()
-  @IsString()
-  @Column({ nullable: true })
-  due_date?: string;
+  // @IsOptional()
+  // @IsString()
+  // @Column({ nullable: true })
+  // due_date?: string;
 }

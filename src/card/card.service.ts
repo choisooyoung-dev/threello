@@ -54,9 +54,12 @@ export class CardService {
   }
 
   // 특정 카드 조회, 마감기한에 따른 상태 조회
-  async getCard(id: number) {
-    const getCard = await this.cardRepository.findOneBy({ id });
+  async getCard(cardId: number) {
+    const getCard = await this.cardRepository.findOneBy({ id: cardId });
+    const { id, list_id, title, content, color, deadline_status } = getCard;
+
     const dueDate = getCard.due_date;
+    const dueDateForView = new Date(dueDate.setHours(dueDate.getHours() + 9));
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -82,7 +85,18 @@ export class CardService {
         // 마감기한 하루 전
         deadlineStatusWithTime = 'Due Soon';
       }
-      return { getCard, deadlineStatusWithTime };
+      return {
+        getCard: {
+          id,
+          list_id,
+          title,
+          content,
+          color,
+          due_date: dueDateForView,
+          deadline_status,
+        },
+        deadlineStatusWithTime,
+      };
     }
 
     // 마감기한 설정해줬고, 상태가 complete면?

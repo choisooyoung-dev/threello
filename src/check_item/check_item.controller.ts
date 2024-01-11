@@ -116,7 +116,6 @@ export class CheckItemController {
     @Param('itemTo') itemTo: string,
   ) {
     const listCount = await this.checkItemService.count(Number(listTo));
-    console.log(listCount.total_list_count);
     const moveItemBetweenList = await this.checkItemService.moveItemBetweenList(
       +itemId,
       +listTo,

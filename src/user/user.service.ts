@@ -71,7 +71,6 @@ export class UserService {
   async withdraw(user: User) {
     try {
       const originUserInfo = await this.getUserByEmail(user.email);
-      console.log(originUserInfo);
       const deletedUser = await this.userRepository.remove(originUserInfo);
       if (deletedUser) {
         return { code: 200, message: 'Withdrawal successful' };

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -217,6 +218,9 @@ export class BoardService {
         userInfoOnly,
         board,
       );
+      if (result.is_accept == true) {
+        throw new BadRequestException('you already joined in the board');
+      }
       await this.checkUserIsInvited(result);
       result.is_accept = true;
       this.boardMemberRepository.save(result);

@@ -102,7 +102,6 @@ export class UserController {
   async getMyInfo(
     @GetUser() user: User,
   ): Promise<{ code: number; message: string; email: string; nick: string }> {
-    console.log(user);
     return {
       code: 200,
       message: 'you successfully get your profile',

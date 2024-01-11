@@ -135,7 +135,6 @@ export class CheckItemService {
     const item = (await this.verifyListById(id)).checkItem[0];
     const checklist_id = item.checklist_id;
     const count = await this.count(checklist_id);
-    console.log(count);
 
     // 얘가 맨 마지막 애라면 나머지 order는 변경할 필요 없이 지우고 끗
     if (Number(count.total_list_count) === item.lists_order) {

@@ -7,8 +7,8 @@ POST {{host}}/api/user/signup
 Content-Type: application/json
 
 {
-  "email": "test2@test.com",
-  "nick": "test2",
+  "email": "test@test.com",
+  "nick": "test",
   "password": "1q2w3e4r1234",
   "passwordConfirm": "1q2w3e4r1234"
 }
@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 
 ### 보드 초대
-POST {{host}}/api/boards/invite/1
+POST {{host}}/api/boards/invite/6
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 
@@ -82,7 +82,7 @@ DELETE {{host}}/boards/1
 
 // 리스트 테스트
 ### 리스트등록
-POST {{host}}/api/5/list
+POST {{host}}/api/3/list
 Authorization: Bearer {{Token}}
 Content-Type: application/json
 
@@ -244,6 +244,6 @@ Authorization: Bearer {{Token}}
 Content-Type: application/json
 
 ### 옆집이사
-PATCH {{host}}/api/1/check-item/46/2/1
+PATCH {{host}}/api/1/check-item/41/2/1
 Authorization: Bearer {{Token}}
 Content-Type: application/json

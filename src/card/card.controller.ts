@@ -25,7 +25,7 @@ import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
 
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('4. card')
+@ApiTags('4. /:boardId/card')
 @ApiBearerAuth()
 @Controller('/:boardId/card')
 export class CardController {

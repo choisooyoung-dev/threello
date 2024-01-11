@@ -46,6 +46,7 @@ export class CheckListService {
     try {
       // 선택된 리스트블록 가져오기
       const listBlock = await this.verifyListById(id);
+      const card_id = listBlock.checklists[0].card_id;
       // 리스트블록의 현재 order값과 옮기려는 값을 비교해서 최대값, 최소값 설정
       let max = 0;
       let min = 0;
@@ -66,6 +67,9 @@ export class CheckListService {
             max: max,
           },
         )
+        .andWhere('checklist.card_id = :card_id', {
+          card_id: card_id,
+        })
         .getMany();
       // 뒤에서 앞으로 옮기면 앞에있던 모든리스트를 +1, 반대는 -1해야함
       // direction으로 변수설정하고 적용
@@ -112,10 +116,10 @@ export class CheckListService {
   }
 
   // 지원메서드 count(전체 list 개수를 세 줌)
-  async count(boards_id: number) {
+  async count(card_id: number) {
     const listCount = await this.checklistRepository
       .createQueryBuilder('checklist')
-      .where({ boards_id: boards_id })
+      .where({ card_id: card_id })
       .select('COUNT(checklist.check_order)', 'total_list_count')
       .getRawOne();
 

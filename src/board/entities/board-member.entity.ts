@@ -24,7 +24,7 @@ export class BoardMember {
 
   @IsNotEmpty()
   @IsBoolean()
-  @Column()
+  @Column({ default: true })
   is_accept: boolean;
 
   @IsNotEmpty()

@@ -18,7 +18,7 @@ import { BoardMemberGuard } from '../auth/guard/board-member.guard';
 
 @ApiBearerAuth()
 @ApiTags('7. /:boardId/check-item')
-@Controller('check-item')
+@Controller('/:boardId/check-item')
 export class CheckItemController {
   constructor(
     private readonly checkItemService: CheckItemService,
@@ -100,11 +100,12 @@ export class CheckItemController {
     @Param('itemTo') itemTo: string,
   ) {
     const listCount = await this.checkItemService.count(Number(listTo));
+    console.log(listCount.total_list_count);
     const moveItemBetweenList = await this.checkItemService.moveItemBetweenList(
       +itemId,
       +listTo,
       +itemTo,
-      +listCount,
+      Number(listCount.total_list_count) + 1,
     );
     return moveItemBetweenList;
   }

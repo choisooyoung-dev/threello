@@ -17,7 +17,7 @@ import { User } from 'src/user/entities/user.entity';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-@ApiTags('comment')
+@ApiTags('5. /:boardId/:card_id/comments')
 @Controller('/:boardId/:card_id/comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}

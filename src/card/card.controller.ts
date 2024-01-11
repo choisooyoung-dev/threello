@@ -20,10 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { List } from 'src/list/entities/list.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/decorator/get-user.decorator';
-import { User } from 'src/user/entities/user.entity';
 import { Card } from './entities/card.entity';
 import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';

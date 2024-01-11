@@ -129,21 +129,15 @@ export class BoardService {
         where: { id: boardId },
         relations: ['boardMembers', 'boardMembers.user'],
       });
-      this.checkBoardExistence(board);
-      await this.checkUserIsHost(board, userInfoOnly);
+      const originBoardInfoOnly: Board = await this.boardRepository.findOneBy({
+        id: boardId,
+      });
+      this.checkBoardExistence(originBoardInfoOnly);
+      await this.checkUserIsHost(originBoardInfoOnly, userInfoOnly);
       const invitedUser: User = await this.getUserByEmail(email);
       this.checkUserExistence(invitedUser);
-      await this.checkUserNotInBoard(invitedUser, board);
-
-      const isUserHost = board.boardMembers.some(
-        (member) => member.user.id === userId && member.is_host,
-      );
-      if (!isUserHost) {
-        throw new UnauthorizedException('초대 권한이 없습니다.');
-      }
-
-      const result = await this.addUserToBoard(invitedUser, board);
-      console.log(result.created_at);
+      await this.checkUserNotInBoard(invitedUser, originBoardInfoOnly);
+      await this.addUserToBoard(invitedUser, board);
     } catch (error) {
       throw error;
     }
@@ -152,7 +146,7 @@ export class BoardService {
 
   private checkBoardExistence(board: Board): void {
     if (!board) {
-      throw new NotFoundException(`id with ${board.id} board isn't exist`);
+      throw new NotFoundException(`id with board isn't exist`);
     }
   }
 

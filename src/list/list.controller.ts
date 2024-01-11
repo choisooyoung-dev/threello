@@ -46,19 +46,13 @@ export class ListController {
     description: '성공적으로 리스트를 생성했습니다.',
     type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
   })
-<<<<<<< HEAD
   @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
-  async create(@Body() createListDto: CreateListDto) {
-    await this.boardService.getBoardById(createListDto.boards_id);
-    const listCount = await this.listService.count(createListDto.boards_id);
-=======
   async create(
     @Body() createListDto: CreateListDto,
     @Param('boardId') boardId: number,
   ) {
     await this.boardService.getBoardById(boardId);
     const listCount = await this.listService.count(boardId);
->>>>>>> 00928d811a6031c299cddc2bee03636bf8c7c735
     return await this.listService.create(
       boardId,
       createListDto,
@@ -72,14 +66,9 @@ export class ListController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
-<<<<<<< HEAD
   @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Get('all/:boards_id')
   async findAll(@Param('boards_id') boards_id: number) {
-=======
-  @Get('all/')
-  async findAll(@Param('boardsId') boards_id: number) {
->>>>>>> 00928d811a6031c299cddc2bee03636bf8c7c735
     return await this.listService.findAll(boards_id);
   }
 

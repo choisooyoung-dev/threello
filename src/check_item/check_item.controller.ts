@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -39,6 +40,7 @@ export class CheckItemController {
   @ApiBody({ type: CreateCheckItemDto })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Post()
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiResponse({ type: CheckItem })
   async create(@Body() createCheckItemDto: CreateCheckItemDto) {
     await this.checkListService.findOne(createCheckItemDto.checklist_id);
@@ -56,12 +58,14 @@ export class CheckItemController {
     description: '특정 체크리스트 ID를 통해 체크아이템을 생성합니다.',
   })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Get('all/:checklist_id')
   async findAll(@Param('checklist_id') checklist_id: number) {
     return await this.checkItemService.findAll(checklist_id);
   }
 
   @ApiResponse({ type: CheckItem })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiOperation({
     summary: '체크아이템 조회 API',
     description: '체크아이템 ID를 통해 특정 체크아이템을 생성합니다.',
@@ -76,6 +80,7 @@ export class CheckItemController {
     summary: '체크아이템 수정 API',
     description: '체크아이템을 수정합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBody({ type: UpdateCheckItemDto })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':itemId')
@@ -90,6 +95,7 @@ export class CheckItemController {
     summary: '체크리스트 내 체크아이템 이동 API',
     description: '체크리스트 내에서 체크아이템을 이동합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':itemId/:to')
   async moveListBlock(@Param('itemId') id: number, @Param('to') to: number) {
@@ -101,6 +107,7 @@ export class CheckItemController {
     summary: '카드 간 체크아이템 이동 API',
     description: '카드 간에 체크아이템을 이동합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':itemId/:listTo/:itemTo')
   async moveItemBetweenList(
@@ -123,6 +130,7 @@ export class CheckItemController {
     summary: '체크아이템 삭제 API',
     description: '체크아이템을 삭제합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':itemId')
   async remove(@Param('itemId') id: string) {

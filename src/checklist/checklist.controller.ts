@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -37,6 +38,7 @@ export class CheckListController {
   })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Post()
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBody({ type: CreateCheckListDto })
   @ApiResponse({
     schema: {
@@ -62,6 +64,7 @@ export class CheckListController {
     summary: '카드 내 체크리스트 모두 조회 API',
     description: '카드 ID를 통해 특정 카드의 체크리스트를 모두 조회 합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get('all/:card_id')
   @ApiResponse({ type: CheckList, isArray: true })
@@ -73,6 +76,7 @@ export class CheckListController {
     summary: '특정 체크리스트 조회 API',
     description: '체크리스트 ID를 통해 특정 체크리스트를 조회합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get(':listId')
   @ApiResponse({ type: CheckList, isArray: true })
@@ -84,6 +88,7 @@ export class CheckListController {
     summary: '체크리스트 수정 API',
     description: '체크리스트를 수정합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @ApiBody({ type: UpdateCheckListDto })
   @ApiResponse({ type: CheckList })
@@ -99,6 +104,7 @@ export class CheckListController {
     summary: '체크리스트 이동 API',
     description: '체크리스트를 이동합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @ApiResponse({ type: CheckList })
   @Patch(':listId/:to')
@@ -110,6 +116,7 @@ export class CheckListController {
     summary: '체크리스트 삭제 API',
     description: '체크리스트를 삭제합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':listId')
   async remove(@Param('listId') id: string) {

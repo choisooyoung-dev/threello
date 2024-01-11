@@ -17,7 +17,7 @@ import { Comment } from './entities/comment.entity';
 //TODO: 다시봐야함.
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
-import { ApiBody, ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('comment')
@@ -32,6 +32,7 @@ export class CommentController {
   })
   @Post()
   @UseGuards(AuthGuard('jwt'))
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBody({ type: CreateCommentDto })
   @ApiResponse({
     type: Comment,
@@ -72,6 +73,7 @@ export class CommentController {
       },
     },
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiOperation({
     summary: '전체 댓글 조회 API',
     description: '댓글을 모두 조회합니다.',
@@ -94,6 +96,7 @@ export class CommentController {
     summary: '특정 댓글 조회 API',
     description: '특정 댓글을 조회합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiResponse({
     type: Comment,
     schema: {
@@ -118,6 +121,7 @@ export class CommentController {
     summary: '댓글 수정 API',
     description: '댓글을 수정합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Patch(':commentId')
   @ApiResponse({
     type: Comment,
@@ -153,6 +157,7 @@ export class CommentController {
     summary: '댓글 삭제 API',
     description: '댓글을 삭제합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiResponse({
     type: Comment,
     isArray: true,

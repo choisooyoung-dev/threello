@@ -18,8 +18,8 @@ export class ListService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createListDto: CreateListDto, lists_order) {
-    const { boards_id, title } = createListDto;
+  async create(boards_id, createListDto: CreateListDto, lists_order) {
+    const { title } = createListDto;
     await this.listRepository.save({ boards_id, lists_order, title });
     return { boards_id, title, lists_order };
   }

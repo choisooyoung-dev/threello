@@ -12,12 +12,19 @@ import { CheckListService } from './checklist.service';
 import { CreateCheckListDto } from './dto/create-checklist.dto';
 import { UpdateCheckListDto } from './dto/update-checklist.dto';
 import { CardService } from '../card/card.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { BoardMemberGuard } from '../auth/guard/board-member.guard';
+import { CheckList } from './entities/checklist.entity';
 @ApiBearerAuth()
-@ApiTags('/:boardId/checklist')
-@Controller('checklist')
+@ApiTags('6. /:boardId/checklist')
+@Controller('/:boardId/checklist')
 export class CheckListController {
   constructor(
     private readonly checkListService: CheckListService,
@@ -31,6 +38,15 @@ export class CheckListController {
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Post()
   @ApiBody({ type: CreateCheckListDto })
+  @ApiResponse({
+    schema: {
+      properties: {
+        card_id: { type: 'number', example: 1 },
+        check_order: { type: 'string', example: 1 },
+        title: { type: 'string', example: 'checkListTitle' },
+      },
+    },
+  })
   async create(@Body() createCheckListDto: CreateCheckListDto) {
     await this.cardService.getCard(createCheckListDto.card_id);
     const listCount = await this.checkListService.count(
@@ -48,6 +64,7 @@ export class CheckListController {
   })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get('all/:card_id')
+  @ApiResponse({ type: CheckList, isArray: true })
   async findAll(@Param('card_id') card_id: number) {
     return await this.checkListService.findAll(card_id);
   }
@@ -58,6 +75,7 @@ export class CheckListController {
   })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get(':listId')
+  @ApiResponse({ type: CheckList, isArray: true })
   async findOne(@Param('listId') id: number) {
     return await this.checkListService.findOne(+id);
   }
@@ -68,6 +86,7 @@ export class CheckListController {
   })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @ApiBody({ type: UpdateCheckListDto })
+  @ApiResponse({ type: CheckList })
   @Patch(':listId')
   async update(
     @Param('listId') id: number,
@@ -81,6 +100,7 @@ export class CheckListController {
     description: '체크리스트를 이동합니다.',
   })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
+  @ApiResponse({ type: CheckList })
   @Patch(':listId/:to')
   async moveListBlock(@Param('listId') id: number, @Param('to') to: number) {
     return await this.checkListService.moveCheckListBlock(+id, to);

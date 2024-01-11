@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { CardWorker } from './entities/card.worker.entity';
 import { CreateWorkerDto } from './dto/create-woker.dto';
 import { Card } from 'src/card/entities/card.entity';
+import { BoardMember } from 'src/board/entities/board-member.entity';
 
 @Injectable()
 export class CardService {
@@ -13,6 +14,8 @@ export class CardService {
     @InjectRepository(Card) private cardRepository: Repository<Card>,
     @InjectRepository(CardWorker)
     private cardWorkerRepository: Repository<CardWorker>,
+    @InjectRepository(BoardMember)
+    private boardMemberRepository: Repository<BoardMember>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -24,39 +27,36 @@ export class CardService {
     dueTimeValue: string,
   ) {
     const { title, color, content } = createCardDto;
-
-    const getAllCards = await this.cardRepository.find();
-    //  console.log(allGetCard);
-
-    const cardOrder = getAllCards.length + 1;
+    const getAllCards = await this.getAllCards(list_id);
+    const newCardOrder = getAllCards.length + 1;
 
     // 날짜는 입력하고 시간 입력 안해줬을 때
     if (!dueTimeValue) dueTimeValue = '00:00';
 
     const newCard = await this.cardRepository.save({
-      list: { id: list_id },
       title,
       content,
-      card_order: cardOrder,
+      card_order: newCardOrder,
       color,
       due_date: `${dueDateValue} ${dueTimeValue}`,
+      list_id,
     });
 
     return this.getCard(newCard.id);
   }
 
-  // 모든 카드 조회
-  async getAllCards() {
-    const getAllCards = await this.cardRepository.find();
+  // 모든 카드 조회 (리스트 안에)
+  async getAllCards(listId: number) {
+    const getAllCards = await this.cardRepository.find({
+      where: { list: { id: listId } },
+    });
     return getAllCards;
   }
 
   // 특정 카드 조회, 마감기한에 따른 상태 조회
   async getCard(id: number) {
     const getCard = await this.cardRepository.findOneBy({ id });
-
     const dueDate = getCard.due_date;
-    console.log('dueDate ===> ', dueDate);
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -70,6 +70,7 @@ export class CardService {
       const nowDate = new Date();
 
       const timeDifference = dueDate.getTime() - nowDate.getTime();
+      console.log('timeDifference: ', timeDifference);
 
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
       console.log('hoursDifference: ', hoursDifference);
@@ -111,14 +112,10 @@ export class CardService {
         throw new NotFoundException('해당하는 카드가 없습니다.');
 
       const existingCardOrder = existingCard[0].card_order;
-      console.log('existingCardOrder: ', existingCardOrder);
-
-      //const listId = existingCard[0].listId;
 
       const countArr = await this.cardRepository.find();
-      console.log('countArr ===> ', countArr);
+
       const count = countArr.length;
-      console.log('count ===> ', count);
 
       if (count === existingCardOrder) {
         await this.cardRepository.delete({ id });
@@ -174,15 +171,17 @@ export class CardService {
         min = cardBlock[0].card_order;
       }
 
+      const list_id = cardBlock[0].list_id;
       const currentCards = await this.cardRepository
         .createQueryBuilder('card')
         .where('card.card_order >= :min AND card.card_order <= :max', {
           min: min,
           max: max,
         })
+        .andWhere('card.list_id = :list_id', {
+          list_id: list_id,
+        })
         .getMany();
-
-      console.log(currentCards);
 
       const direction = to > cardBlock[0].card_order ? -1 : 1;
 
@@ -217,27 +216,20 @@ export class CardService {
     await queryRunner.startTransaction();
     try {
       // 옮기기 전 list_id 값의 속한 카드들 정렬
-      const existingCard = await this.cardRepository.find({
-        where: { list: { id: listId } },
-        select: ['list'],
-      });
+      const currentListInCards = await this.getAllCards(listId);
 
-      console.log(existingCard.length);
-
-      if (!existingCard)
-        throw new NotFoundException('해당하는 카드가 없습니다.');
-
-      const moveCard = await this.cardRepository.findOne({
-        where: { id: cardId },
-      });
-
-      // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
-      await this.moveCardBlock(cardId, existingCard.length);
+      // // 카드 전에 있던 리스트에서 마지막 순서로 옮기기
+      await this.moveCardBlock(cardId, currentListInCards.length);
 
       // 리스트 값 바꾸기
       await this.cardRepository.update(cardId, {
         list: { id: listTo },
       });
+
+      // 옮긴 후 리스트 카드 목록 불러오기
+      await this.getAllCards(listTo);
+
+      await this.moveCardBlock(cardId, cardTo);
 
       await queryRunner.commitTransaction();
       return this.getCard(cardId);
@@ -260,43 +252,87 @@ export class CardService {
     return await cardCount;
   }
 
+  // 작업자 조회
+  async getAllWorkers(boardId: number) {
+    return await this.boardMemberRepository.find({
+      where: { board: { id: boardId } },
+    });
+  }
+
   // 작업자 할당
-  async createWorker(cardId: number, createWorkerDto: CreateWorkerDto) {
-    const { userIds } = createWorkerDto;
-
-    const createdWorkers = [];
-
-    for (const user of userIds) {
-      // 작업자 유저아이디가 유저테이블에 있는지
-      // 해당 유저가 멤버인지
-
-      // 작업자 중복 체크
-      const existingWorker = await this.cardWorkerRepository.findOne({
-        where: { user_id: user.id, card: { id: cardId } },
+  async createWorker(
+    boardId: number,
+    cardId: number,
+    createWorkerDto: CreateWorkerDto,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 초대된 멤버인지
+      const getWorkers = await this.getAllWorkers(boardId);
+      console.log(getWorkers);
+      const invitedWorkerArr = [];
+      const createdWorkers = [];
+      getWorkers.forEach((worker) => {
+        invitedWorkerArr.push(worker.userId);
       });
+      const { userIds } = createWorkerDto;
 
-      // 중복된 사람 제외 등록
-      if (!existingWorker) {
-        const newWorker = await this.cardWorkerRepository.save({
-          userId: user.id,
+      for (const user of userIds) {
+        // 해당 유저가 멤버인지
+        if (!invitedWorkerArr.includes(user.id))
+          throw new NotFoundException('초대되지 않은 멤버입니다.');
+
+        // 작업자 중복 체크
+        const existingWorker = await this.cardWorkerRepository.find({
+          where: { user_id: user.id },
+        });
+
+        console.log('existingWorker: ', existingWorker);
+        // 중복된 사람 제외 등록
+        if (existingWorker.length > 0) {
+          throw new Error('중복된 멤버입니다.');
+        }
+        const newWorker = await queryRunner.manager.save(CardWorker, {
+          user_id: user.id,
           card: { id: cardId },
         });
         createdWorkers.push(newWorker);
       }
+      await queryRunner.commitTransaction();
+      return createdWorkers;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return { status: 404, message: error.message };
+    } finally {
+      // 사용이 끝난 후에는 항상 queryRunner를 해제
+      await queryRunner.release();
     }
-    return createdWorkers;
   }
 
   // 작업자 삭제
   async removeWorker(cardId: number, userId: number) {
-    const existingWorker = await this.cardWorkerRepository.findOne({
-      where: { user: { id: userId }, card: { id: cardId } },
-    });
-    if (!existingWorker)
-      throw new NotFoundException('해당되는 사용자가 없습니다.');
-    const deleteWorker = await this.cardWorkerRepository.delete({
-      user: { id: userId },
-    });
-    return deleteWorker;
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const existingWorker = await this.cardWorkerRepository.findOne({
+        where: { user: { id: userId }, card: { id: cardId } },
+      });
+      if (!existingWorker)
+        throw new NotFoundException('해당되는 사용자가 없습니다.');
+      const deleteWorker = await this.cardWorkerRepository.delete({
+        user: { id: userId },
+      });
+      await queryRunner.commitTransaction();
+      return deleteWorker;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return { status: 404, message: error.message };
+    } finally {
+      // 사용이 끝난 후에는 항상 queryRunner를 해제
+      await queryRunner.release();
+    }
   }
 }

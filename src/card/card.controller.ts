@@ -28,7 +28,7 @@ import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
 
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('card')
+@ApiTags('4. card')
 @ApiBearerAuth()
 @Controller('/:boardId/card')
 export class CardController {
@@ -40,16 +40,17 @@ export class CardController {
     description: '카드를 생성합니다.',
   })
   @ApiBody({ type: CreateCardDto })
+  @ApiBearerAuth()
   @Post('/create')
   @ApiResponse({ type: Card })
-  async create(@GetUser() user: User, @Body() createCardDto: CreateCardDto) {
+  async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
       createCardDto.list_id,
       createCardDto,
       createCardDto.dueDateValue,
       createCardDto.dueTimeValue,
     );
-    return { data, user };
+    return data;
   }
 
   // 카드 삭제
@@ -58,10 +59,24 @@ export class CardController {
     description: '카드를 삭제합니다.',
   })
   @ApiResponse({ type: Card, isArray: true })
-  @Delete('/delete/:id')
-  async remove(@Param('id') id: string) {
-    const cards = await this.cardService.remove(+id);
+  @ApiBearerAuth()
+  @Delete('/delete/:cardId')
+  async remove(@Param('cardId') cardId: string) {
+    const cards = await this.cardService.remove(+cardId);
     return cards;
+  }
+
+  // 보드 내 멤버 조회(작업자 조회)
+  @ApiOperation({
+    summary: '보드에 초대된 모든 멤버 조회',
+    description:
+      '작업자 할당 시 보드 내에 초대된 모든 멤버만 할당하기 위해 해당 멤버를 조회합니다.',
+  })
+  @ApiBearerAuth()
+  @Get('/worker/all')
+  async getAllWorkers(@Param('boardId') boardId: string) {
+    const data = await this.cardService.getAllWorkers(+boardId);
+    return data;
   }
 
   // 카드 내 작업자 할당
@@ -71,12 +86,18 @@ export class CardController {
   })
   @ApiBody({ type: CreateWorkerDto })
   @ApiResponse({ type: CardWorker, isArray: true })
-  @Post(':id/worker/create')
+  @ApiBearerAuth()
+  @Post(':cardId/worker/create')
   async createWorker(
-    @Param('id') cardId: string,
+    @Param('boardId') boardId: string,
+    @Param('cardId') cardId: string,
     @Body() createWorkerDto: CreateWorkerDto,
   ) {
-    const data = await this.cardService.createWorker(+cardId, createWorkerDto);
+    const data = await this.cardService.createWorker(
+      +boardId,
+      +cardId,
+      createWorkerDto,
+    );
     return data;
   }
 
@@ -85,25 +106,26 @@ export class CardController {
     summary: '카드 내 작업자 삭제 API',
     description: '카드 내에 해당 작업을 담당하는 작업자를 삭제합니다.',
   })
-  @Delete(':id/worker/remove/:userId')
+  @ApiBearerAuth()
+  @Delete(':cardId/worker/remove/:userId')
   @ApiResponse({ type: DeleteResult })
   async removeWorker(
-    @Param('id') cardId: string,
+    @Param('cardId') cardId: string,
     @Param('userId') userId: string,
   ) {
     const data = await this.cardService.removeWorker(+cardId, +userId);
     return data;
   }
 
-  // 모든 카드 가져오기
+  // 리스트 안에 모든 카드 가져오기
   @ApiOperation({
     summary: '모든 카드 조회 API',
     description: '모든 카드를 조회합니다.',
   })
-  @Get('/:listId')
+  @Get('/all/:listId')
   @ApiResponse({ type: Card, isArray: true })
   async getAllCards(@Param('listId') listId: string) {
-    const cards = await this.cardService.getAllCards();
+    const cards = await this.cardService.getAllCards(+listId);
     return cards;
   }
 
@@ -112,10 +134,10 @@ export class CardController {
     summary: '특정 카드 조회 API',
     description: '카드 ID를 통해 특정 카드를 조회합니다.',
   })
-  @Get(':id')
+  @Get(':cardId')
   @ApiResponse({ type: Card })
-  async getCard(@Param('id') id: string) {
-    const card = await this.cardService.getCard(+id);
+  async getCard(@Param('cardId') cardId: string) {
+    const card = await this.cardService.getCard(+cardId);
     return card;
   }
 
@@ -125,10 +147,13 @@ export class CardController {
     description: '카드를 수정합니다.',
   })
   @ApiResponse({ type: Card })
-  @Patch(':id')
+  @Patch(':cardId')
   @ApiBody({ type: UpdateCardDto })
-  async update(@Param('id') id: string, @Body() updateCardDto: UpdateCardDto) {
-    const updatedCard = await this.cardService.update(+id, updateCardDto);
+  async update(
+    @Param('cardId') cardId: string,
+    @Body() updateCardDto: UpdateCardDto,
+  ) {
+    const updatedCard = await this.cardService.update(+cardId, updateCardDto);
     return updatedCard;
   }
 

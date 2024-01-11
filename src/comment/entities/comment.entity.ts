@@ -4,18 +4,19 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { User } from 'src/user/entities/user.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Board } from 'src/board/entities/board.entity';
+import { Card } from 'src/card/entities/card.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'comments' })
 export class Comment {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
@@ -51,4 +52,8 @@ export class Comment {
   @ManyToOne(() => Board, (board) => board.comments, { onDelete: 'CASCADE' })
   @JoinColumn([{ name: 'board_id', referencedColumnName: 'id' }])
   board: Board;
+
+  @ManyToOne(() => Card, (card) => card.comments, { onDelete: 'CASCADE' })
+  @JoinColumn([{ name: 'card_id', referencedColumnName: 'id' }])
+  card: Card;
 }

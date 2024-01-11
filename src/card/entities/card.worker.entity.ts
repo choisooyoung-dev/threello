@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Card } from './card.entity';
 import { IsNumber } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
@@ -19,11 +25,13 @@ export class CardWorker {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Card, (card) => card.cardWorkers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn({ name: 'card_id' })
   card: Card;
 }

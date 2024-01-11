@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Board } from './board.entity';
 import { User } from '../../user/entities/user.entity';
@@ -15,9 +16,15 @@ export class BoardMember {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  userId: number;
+
+  @Column()
+  boardId: number;
+
   @IsNotEmpty()
   @IsBoolean()
-  @Column()
+  @Column({ default: true })
   is_accept: boolean;
 
   @IsNotEmpty()
@@ -31,9 +38,13 @@ export class BoardMember {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Board, (boards) => boards.boardMembers)
+  @ManyToOne(() => Board, (boards) => boards.boardMembers, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn([{ name: 'boardId', referencedColumnName: 'id' }])
   board: Board;
 
-  @ManyToOne(() => User, (user) => user.boardMembers)
+  @ManyToOne(() => User, (user) => user.boardMembers, { onDelete: 'CASCADE' })
+  @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
   user: User;
 }

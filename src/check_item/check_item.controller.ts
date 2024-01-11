@@ -12,13 +12,20 @@ import { CheckItemService } from './check_item.service';
 import { CreateCheckItemDto } from './dto/create-check-item.dto';
 import { UpdateCheckItemDto } from './dto/update-check-item.dto';
 import { CheckListService } from '../checklist/checklist.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { BoardMemberGuard } from '../auth/guard/board-member.guard';
+import { CheckItem } from './entities/check_item.entity';
 
 @ApiBearerAuth()
-@ApiTags('/:boardId/check-item')
-@Controller('check-item')
+@ApiTags('7. /:boardId/check-item')
+@Controller('/:boardId/check-item')
 export class CheckItemController {
   constructor(
     private readonly checkItemService: CheckItemService,
@@ -32,6 +39,7 @@ export class CheckItemController {
   @ApiBody({ type: CreateCheckItemDto })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Post()
+  @ApiResponse({ type: CheckItem })
   async create(@Body() createCheckItemDto: CreateCheckItemDto) {
     await this.checkListService.findOne(createCheckItemDto.checklist_id);
     const listCount = await this.checkItemService.count(
@@ -53,6 +61,7 @@ export class CheckItemController {
     return await this.checkItemService.findAll(checklist_id);
   }
 
+  @ApiResponse({ type: CheckItem })
   @ApiOperation({
     summary: '체크아이템 조회 API',
     description: '체크아이템 ID를 통해 특정 체크아이템을 생성합니다.',
@@ -100,11 +109,12 @@ export class CheckItemController {
     @Param('itemTo') itemTo: string,
   ) {
     const listCount = await this.checkItemService.count(Number(listTo));
+    console.log(listCount.total_list_count);
     const moveItemBetweenList = await this.checkItemService.moveItemBetweenList(
       +itemId,
       +listTo,
       +itemTo,
-      +listCount,
+      Number(listCount.total_list_count) + 1,
     );
     return moveItemBetweenList;
   }

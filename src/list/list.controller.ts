@@ -18,6 +18,7 @@ import {
   ApiBody,
   ApiBearerAuth,
   ApiResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { ResponseInterface } from 'src/response/interface/response.interface';
 import { AuthGuard } from '@nestjs/passport';
@@ -45,6 +46,7 @@ export class ListController {
     description: '성공적으로 리스트를 생성했습니다.',
     type: ResponseInterface, // 또는 응답 형식의 클래스 또는 타입
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   async create(
     @Body() createListDto: CreateListDto,
     @Param('boardId') boardId: number,
@@ -64,8 +66,9 @@ export class ListController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
-  @Get('all/')
-  async findAll(@Param('boardsId') boards_id: number) {
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
+  @Get('all/:boards_id')
+  async findAll(@Param('boards_id') boards_id: number) {
     return await this.listService.findAll(boards_id);
   }
 
@@ -74,6 +77,7 @@ export class ListController {
     description: '리스트 ID를 통해 특정 리스트를 조회합니다.',
   })
   @ApiBearerAuth()
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Get(':listId')
   async findOne(@Param('listId') id: number) {
@@ -84,6 +88,7 @@ export class ListController {
     summary: '리스트 수정 API',
     description: '리스트를 수정합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':listId')
@@ -98,6 +103,7 @@ export class ListController {
     summary: '리스트 이동 API',
     description: '리스트를 이동합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':listId/:to')
@@ -109,6 +115,7 @@ export class ListController {
     summary: '리스트 삭제 API',
     description: '리스트를 삭제합니다.',
   })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Delete(':listId')

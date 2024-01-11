@@ -18,8 +18,8 @@ export class ListService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createListDto: CreateListDto, lists_order) {
-    const { boards_id, title } = createListDto;
+  async create(boards_id, createListDto: CreateListDto, lists_order) {
+    const { title } = createListDto;
     await this.listRepository.save({ boards_id, lists_order, title });
     return { boards_id, title, lists_order };
   }
@@ -44,7 +44,7 @@ export class ListService {
 
   // 리스트 옮기기(트랜잭션)
   async moveListBlock(id: number, to: number) {
-    console.log(to);
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

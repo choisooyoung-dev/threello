@@ -62,7 +62,6 @@ export class BoardController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  @ApiResponse({ type: BoardMember, isArray: true })
   async getAllBoards(@Request() req): Promise<Board[]> {
     return await this.boardService.getAllBoards(req.user.id);
   }
@@ -89,7 +88,7 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
   @Patch(':id')
   @ApiBody({ type: CreateBoardDto })
-  @ApiResponse({ type: BoardMember })
+  @ApiResponse({ type: Board })
   async updateBoard(
     @Param('id') id: number,
     @Body() updateBoardDto: CreateBoardDto,
@@ -104,7 +103,7 @@ export class BoardController {
     description: 'ID에 해당하는 보드를 삭제합니다.',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'), BoardMemberGuard)
+  @UseGuards(AuthGuard('jwt'), Board)
   @Delete(':id')
   async deleteBoard(
     @Param('id') id: number,

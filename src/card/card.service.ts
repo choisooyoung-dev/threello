@@ -54,9 +54,12 @@ export class CardService {
   }
 
   // 특정 카드 조회, 마감기한에 따른 상태 조회
-  async getCard(id: number) {
-    const getCard = await this.cardRepository.findOneBy({ id });
+  async getCard(cardId: number) {
+    const getCard = await this.cardRepository.findOneBy({ id: cardId });
+    const { id, list_id, title, content, color, deadline_status } = getCard;
+
     const dueDate = getCard.due_date;
+    const dueDateForView = new Date(dueDate.setHours(dueDate.getHours() + 9));
 
     // 마감기한 설정해주지 않았으면 카드만 조회
     if (!dueDate) return getCard;
@@ -70,10 +73,8 @@ export class CardService {
       const nowDate = new Date();
 
       const timeDifference = dueDate.getTime() - nowDate.getTime();
-      console.log('timeDifference: ', timeDifference);
 
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
-      console.log('hoursDifference: ', hoursDifference);
 
       let deadlineStatusWithTime: string = '';
 
@@ -84,7 +85,18 @@ export class CardService {
         // 마감기한 하루 전
         deadlineStatusWithTime = 'Due Soon';
       }
-      return { getCard, deadlineStatusWithTime };
+      return {
+        getCard: {
+          id,
+          list_id,
+          title,
+          content,
+          color,
+          due_date: dueDateForView,
+          deadline_status,
+        },
+        deadlineStatusWithTime,
+      };
     }
 
     // 마감기한 설정해줬고, 상태가 complete면?
@@ -106,7 +118,6 @@ export class CardService {
     await queryRunner.startTransaction();
     try {
       const existingCard = await this.cardRepository.find({ where: { id } });
-      console.log(existingCard);
 
       if (!existingCard)
         throw new NotFoundException('해당하는 카드가 없습니다.');
@@ -135,7 +146,6 @@ export class CardService {
 
   // 카드 순서 변경
   async moveCardBlock(cardId: number, to: number) {
-    console.log('to ===> ', to);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -154,13 +164,9 @@ export class CardService {
       const allCards = await this.cardRepository.find();
 
       const cardOrderValues = allCards.map((card) => card.card_order);
-      console.log('cardOrderValues: ', cardOrderValues);
       if (!cardOrderValues.includes(to))
         throw new NotFoundException('해당하는 위치가 없습니다.');
 
-      console.log('cardBlock===> ', cardBlock);
-
-      console.log(cardBlock[0].card_order);
       let max = 0;
       let min = 0;
       if (cardBlock[0].card_order > to) {
@@ -271,7 +277,6 @@ export class CardService {
     try {
       // 초대된 멤버인지
       const getWorkers = await this.getAllWorkers(boardId);
-      console.log(getWorkers);
       const invitedWorkerArr = [];
       const createdWorkers = [];
       getWorkers.forEach((worker) => {
@@ -289,7 +294,6 @@ export class CardService {
           where: { user_id: user.id },
         });
 
-        console.log('existingWorker: ', existingWorker);
         // 중복된 사람 제외 등록
         if (existingWorker.length > 0) {
           throw new Error('중복된 멤버입니다.');

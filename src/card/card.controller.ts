@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -25,7 +26,7 @@ import { CardWorker } from './entities/card.worker.entity';
 import { DeleteResult } from 'typeorm';
 
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('4. card')
+@ApiTags('4. /:boardId/card')
 @ApiBearerAuth()
 @Controller('/:boardId/card')
 export class CardController {
@@ -39,6 +40,8 @@ export class CardController {
   @ApiBody({ type: CreateCardDto })
   @ApiBearerAuth()
   @Post('/create')
+  @ApiResponse({ type: Card })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   async create(@Body() createCardDto: CreateCardDto) {
     const data = await this.cardService.create(
       createCardDto.list_id,
@@ -56,6 +59,7 @@ export class CardController {
   })
   @ApiResponse({ type: Card, isArray: true })
   @ApiBearerAuth()
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Delete('/delete/:cardId')
   async remove(@Param('cardId') cardId: string) {
     const cards = await this.cardService.remove(+cardId);
@@ -69,6 +73,7 @@ export class CardController {
       '작업자 할당 시 보드 내에 초대된 모든 멤버만 할당하기 위해 해당 멤버를 조회합니다.',
   })
   @ApiBearerAuth()
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Get('/worker/all')
   async getAllWorkers(@Param('boardId') boardId: string) {
     const data = await this.cardService.getAllWorkers(+boardId);
@@ -83,6 +88,7 @@ export class CardController {
   @ApiBody({ type: CreateWorkerDto })
   @ApiResponse({ type: CardWorker, isArray: true })
   @ApiBearerAuth()
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Post(':cardId/worker/create')
   async createWorker(
     @Param('boardId') boardId: string,
@@ -104,6 +110,7 @@ export class CardController {
   })
   @ApiBearerAuth()
   @Delete(':cardId/worker/remove/:userId')
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiResponse({ type: DeleteResult })
   async removeWorker(
     @Param('cardId') cardId: string,
@@ -119,6 +126,7 @@ export class CardController {
     description: '모든 카드를 조회합니다.',
   })
   @Get('/all/:listId')
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiResponse({ type: Card, isArray: true })
   async getAllCards(@Param('listId') listId: string) {
     const cards = await this.cardService.getAllCards(+listId);
@@ -131,6 +139,7 @@ export class CardController {
     description: '카드 ID를 통해 특정 카드를 조회합니다.',
   })
   @Get(':cardId')
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiResponse({ type: Card })
   async getCard(@Param('cardId') cardId: string) {
     const card = await this.cardService.getCard(+cardId);
@@ -144,6 +153,7 @@ export class CardController {
   })
   @ApiResponse({ type: Card })
   @Patch(':cardId')
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @ApiBody({ type: UpdateCardDto })
   async update(
     @Param('cardId') cardId: string,
@@ -159,6 +169,7 @@ export class CardController {
     description: '카드의 순서를 변경합니다.',
   })
   @ApiResponse({ type: Card })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Patch(':cardId/:to')
   async moveCardBlock(
     @Param('cardId') cardId: string,
@@ -174,6 +185,7 @@ export class CardController {
     description: '카드 리스트간 순서를 변경합니다.',
   })
   @ApiResponse({ type: Card })
+  @ApiParam({ name: 'boardId', description: 'ID of the board', type: 'number' })
   @Patch(':cardId/:listId/:listTo/:cardTo')
   async moveCardBetweenList(
     @Param('cardId') cardId: string,

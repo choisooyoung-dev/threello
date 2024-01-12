@@ -220,3 +220,8 @@ Content-Type: application/json
 # DELETE WORKER
 DELETE {{host}}/api/7/card/80/worker/remove/4
 Authorization: Bearer {{Token}}
+<<<<<<< HEAD
+=======
+
+ 
+>>>>>>> 4e78e2047d8c218a0930933c418010b99500521a

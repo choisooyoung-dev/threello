@@ -51,9 +51,17 @@
 
 ![Nest.js](https://img.shields.io/badge/nest.js-E0234E?style=for-the-badge&logo=Nest.js.js&logoColor=white)
 ![TypeORM](https://img.shields.io/badge/typeorm-262627?style=for-the-badge&logo=typeorm&logoColor=white)
+<<<<<<< HEAD
 
 ## 🗃 ERD
 
 ![Alt text](image.png)
 
 ## ✅ 주요 기능
+=======
+
+## 🗃 ERD
+
+![Alt text](image.png)
+
+>>>>>>> 4e78e2047d8c218a0930933c418010b99500521a
